@@ -19,7 +19,7 @@ async def load_historical_sequences(code: str, target: str = "last_2") -> list:
     if not DATABASE_URL:
         raise ValueError("DATABASE_URL is not set.")
 
-    conn = await asyncpg.connect(DATABASE_URL)
+    conn = await asyncpg.connect(DATABASE_URL, statement_cache_size=0)
     try:
         # ดึงประเภทหวย
         type_row = await conn.fetchrow("SELECT id FROM lottery_types WHERE code = $1", code)
