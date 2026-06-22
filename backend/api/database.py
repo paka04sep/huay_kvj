@@ -18,6 +18,19 @@ async def init_db_pool():
     global _pool
     if not DATABASE_URL:
         raise ValueError("DATABASE_URL is not set in environment variables.")
+    
+    # พิมพ์ Log เพื่อตรวจสอบความถูกต้องของ Host ปลายทางในระบบคลาวด์
+    import urllib.parse
+    try:
+        # Normalizing URL scheme for parsing
+        url_to_parse = DATABASE_URL
+        if not url_to_parse.startswith("postgresql://") and "://" in url_to_parse:
+            url_to_parse = "postgresql" + url_to_parse[url_to_parse.find("://"):]
+        parsed = urllib.parse.urlparse(url_to_parse)
+        print(f"[DB_CONNECT] Host: {parsed.hostname} | Port: {parsed.port}", flush=True)
+    except Exception as e:
+        print(f"[DB_CONNECT] Parsing Error: {e}", flush=True)
+
     if _pool is None:
         _pool = await asyncpg.create_pool(
             DATABASE_URL,
