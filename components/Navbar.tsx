@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import React from "react";
 
 interface NavbarProps {
@@ -18,9 +19,14 @@ export default function Navbar({
       <div className="flex h-16 items-center justify-between px-4">
         {/* Logo */}
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-950 text-white font-bold text-lg tracking-tight">
-            K
-          </div>
+          <Image
+            src="/brand-mark.svg"
+            alt="HUAY KVJ"
+            width={36}
+            height={36}
+            className="h-9 w-9 rounded-lg"
+            priority
+          />
           <div>
             <h1 className="text-base font-bold tracking-tight text-zinc-950">HUAY KVJ</h1>
             <p className="text-[10px] text-zinc-500 font-medium -mt-1">By Pakawat</p>
