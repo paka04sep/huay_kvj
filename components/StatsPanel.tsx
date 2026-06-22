@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { getApiUrl } from "@/utils/api";
 
 interface StatsPanelProps {
   type: "glo" | "lao";
@@ -65,11 +66,22 @@ export default function StatsPanel({ type }: StatsPanelProps) {
   // Fetch stats when filters or type change
   useEffect(() => {
     async function fetchStats() {
+      // ตรวจสอบความสอดคล้องของ position กับ type เพื่อแก้บั๊ก timing lag (400 Bad Request)
+      const isGloPos = ["first_prize", "last_2", "last_3", "first_3"].includes(position);
+      const isLaoPos = ["digits_4", "digits_3", "digits_2"].includes(position);
+      
+      let fetchPosition = position;
+      if (type === "glo" && !isGloPos) {
+        fetchPosition = "last_2";
+      } else if (type === "lao" && !isLaoPos) {
+        fetchPosition = "digits_2";
+      }
+
       setLoading(true);
       setError(null);
       try {
         const res = await fetch(
-          `http://localhost:8000/api/stats/hot-cold?type=${type}&limit_draws=${limitDraws}&position=${position}&stat_type=${statType}`
+          getApiUrl(`/api/stats/hot-cold?type=${type}&limit_draws=${limitDraws}&position=${fetchPosition}&stat_type=${statType}`)
         );
         if (!res.ok) {
           throw new Error(`API returned status ${res.status}`);
@@ -260,16 +272,23 @@ export default function StatsPanel({ type }: StatsPanelProps) {
               </p>
               <div className="divide-y divide-zinc-100">
                 {data.hot_numbers.map((item, idx) => (
-                  <div key={item.number} className="flex items-center justify-between py-2 text-sm">
+                  <div key={item.number} className="flex items-center justify-between py-2.5 text-sm">
                     <div className="flex items-center gap-3">
                       <span className="text-xs font-semibold text-zinc-400 w-5">#{idx + 1}</span>
-                      <span className="font-bold text-zinc-900 font-mono text-base bg-zinc-100 px-2.5 py-0.5 rounded-md">
+                      <span className={`font-bold font-mono text-base px-2.5 py-0.5 rounded-md border ${
+                        idx === 0 ? "bg-red-100 text-red-900 border-red-200" :
+                        idx === 1 ? "bg-orange-100 text-orange-900 border-orange-200" :
+                        idx === 2 ? "bg-amber-100 text-amber-900 border-amber-200" :
+                        idx === 3 ? "bg-yellow-100 text-yellow-900 border-yellow-200" :
+                        idx === 4 ? "bg-lime-100 text-lime-900 border-lime-200" :
+                        "bg-zinc-100/70 text-zinc-800 border-zinc-200"
+                      }`}>
                         {item.number}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-zinc-900 font-semibold">{item.count}</span>
-                      <span className="text-xs text-zinc-500">ครั้ง</span>
+                      <span className="text-zinc-900 font-bold">{item.count}</span>
+                      <span className="text-xs text-zinc-500 font-medium">ครั้ง</span>
                     </div>
                   </div>
                 ))}
@@ -290,10 +309,17 @@ export default function StatsPanel({ type }: StatsPanelProps) {
               </p>
               <div className="divide-y divide-zinc-100">
                 {data.cold_numbers.map((item, idx) => (
-                  <div key={item.number} className="flex items-center justify-between py-2 text-sm">
+                  <div key={item.number} className="flex items-center justify-between py-2.5 text-sm">
                     <div className="flex items-center gap-3">
                       <span className="text-xs font-semibold text-zinc-400 w-5">#{idx + 1}</span>
-                      <span className="font-bold text-zinc-600 font-mono text-base bg-zinc-50 border border-zinc-100 px-2.5 py-0.5 rounded-md">
+                      <span className={`font-bold font-mono text-base px-2.5 py-0.5 rounded-md border ${
+                        idx === 0 ? "bg-blue-100 text-blue-900 border-blue-200" :
+                        idx === 1 ? "bg-sky-100 text-sky-900 border-sky-200" :
+                        idx === 2 ? "bg-cyan-100 text-cyan-900 border-cyan-200" :
+                        idx === 3 ? "bg-indigo-100 text-indigo-900 border-indigo-200" :
+                        idx === 4 ? "bg-teal-100 text-teal-900 border-teal-200" :
+                        "bg-zinc-50/70 text-zinc-600 border-zinc-150"
+                      }`}>
                         {item.number}
                       </span>
                     </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { getApiUrl } from "@/utils/api";
 
 interface HistoryPanelProps {
   type: "glo" | "lao";
@@ -42,7 +43,7 @@ export default function HistoryPanel({ type }: HistoryPanelProps) {
       setError(null);
       try {
         const res = await fetch(
-          `http://localhost:8000/api/results/history?type=${type}&page=${page}&limit=${limit}`
+          getApiUrl(`/api/results/history?type=${type}&page=${page}&limit=${limit}`)
         );
         if (!res.ok) {
           throw new Error(`API returned status ${res.status}`);
@@ -107,7 +108,6 @@ export default function HistoryPanel({ type }: HistoryPanelProps) {
               <thead>
                 <tr className="bg-zinc-50 border-b border-zinc-200 text-zinc-500 text-xs font-semibold">
                   <th className="py-3 px-4">วันที่ออกรางวัล</th>
-                  <th className="py-3 px-4">งวดที่</th>
                   <th className="py-3 px-4 text-center">รางวัลที่ 1 / รางวัลใหญ่</th>
                   <th className="py-3 px-4 text-center">เลขท้าย 2 ตัว</th>
                   <th className="py-3 px-4">รางวัลอื่นๆ</th>
@@ -121,7 +121,6 @@ export default function HistoryPanel({ type }: HistoryPanelProps) {
                       <td className="py-3.5 px-4 font-medium text-zinc-900">
                         {formatDate(row.draw_date)}
                       </td>
-                      <td className="py-3.5 px-4 text-zinc-500">{row.draw_number || "-"}</td>
                       <td className="py-3.5 px-4 text-center font-bold text-zinc-950 font-mono text-base">
                         {row.primary || "-----"}
                       </td>
@@ -150,12 +149,12 @@ export default function HistoryPanel({ type }: HistoryPanelProps) {
                           </div>
                         ) : (
                           <div className="flex gap-3">
-                            <div>
-                              <span className="text-zinc-400 mr-1">เลข 4 ตัว:</span>
+                            {/* <div>
+                              <span className="text-zinc-400 mr-1">เลขท้าย 4 ตัว:</span>
                               <span className="font-semibold font-mono">
                                 {row.secondary?.digits_4 || "-"}
                               </span>
-                            </div>
+                            </div> */}
                             <div>
                               <span className="text-zinc-400 mr-1">เลข 3 ตัว:</span>
                               <span className="font-semibold font-mono">
@@ -170,7 +169,7 @@ export default function HistoryPanel({ type }: HistoryPanelProps) {
                 })}
                 {data.results.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="py-8 text-center text-zinc-500 text-xs">
+                    <td colSpan={4} className="py-8 text-center text-zinc-500 text-xs">
                       ไม่พบประวัติผลรางวัลย้อนหลัง
                     </td>
                   </tr>

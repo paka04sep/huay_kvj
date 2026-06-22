@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { getApiUrl } from "@/utils/api";
 
 interface PredictionPanelProps {
   type: "glo" | "lao";
@@ -17,8 +18,12 @@ interface PredictionData {
   latest_draw_date: string;
   next_draw_date: string;
   predictions: {
-    last_2: PredictionItem[];
-    last_3: PredictionItem[];
+    three_up: PredictionItem[];
+    three_todd: PredictionItem[];
+    two_up: PredictionItem[];
+    two_down: PredictionItem[];
+    run_up: PredictionItem[];
+    run_down: PredictionItem[];
   };
 }
 
@@ -32,7 +37,7 @@ export default function PredictionPanel({ type }: PredictionPanelProps) {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`http://localhost:8000/api/predictions?type=${type}`);
+        const res = await fetch(getApiUrl(`/api/predictions?type=${type}`));
         if (!res.ok) {
           throw new Error(`API returned status ${res.status}`);
         }
@@ -47,170 +52,159 @@ export default function PredictionPanel({ type }: PredictionPanelProps) {
     fetchPredictions();
   }, [type]);
 
-  const formatDate = (dateStr: string) => {
-    try {
-      const date = new Date(dateStr);
-      return date.toLocaleDateString("th-TH", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
-    } catch (e) {
-      return dateStr;
-    }
+  const toPercentage = (val: number) => {
+    return (val * 100).toFixed(1) + "%";
   };
 
-  const toPercentage = (val: number) => {
-    return (val * 100).toFixed(2) + "%";
+  // Helper component to render list of predictions
+  const renderPredictionList = (
+    title: string,
+    subtitle: string,
+    items: PredictionItem[],
+    multiplier: number = 300,
+    trackingClass: string = ""
+  ) => {
+    if (!items || items.length === 0) return null;
+
+    return (
+      <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm space-y-3">
+        <div>
+          <h4 className="text-xs font-bold text-zinc-900">{title}</h4>
+          <p className="text-[10px] text-zinc-400 mt-0.5">{subtitle}</p>
+        </div>
+        <div className="space-y-2.5">
+          {items.map((item, idx) => (
+            <div key={item.number} className="space-y-1">
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold text-zinc-300 w-4">#{idx + 1}</span>
+                  <span className={`font-extrabold text-zinc-950 font-mono text-sm bg-zinc-50 border border-zinc-200 px-2.5 py-0.5 rounded ${trackingClass}`}>
+                    {item.number}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1 text-[10px] text-zinc-400 font-semibold">
+                  <span>โอกาส:</span>
+                  <span className="text-zinc-800 font-bold font-mono">{toPercentage(item.probability)}</span>
+                </div>
+              </div>
+              {/* Progress bar */}
+              <div className="w-full bg-zinc-100 h-1 rounded-full overflow-hidden">
+                <div
+                  style={{ width: `${Math.min(item.probability * multiplier, 100)}%` }}
+                  className="bg-zinc-950 h-full rounded-full transition-all duration-300"
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   };
 
   if (loading) {
     return (
-      <div className="w-full rounded-2xl border border-zinc-200 bg-white p-12 text-center animate-pulse">
-        <div className="mx-auto h-4 w-48 rounded bg-zinc-200 mb-6"></div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="h-64 rounded bg-zinc-100"></div>
-          <div className="h-64 rounded bg-zinc-100"></div>
-        </div>
+      <div className="w-full space-y-4">
+        {[...Array(3)].map((_, idx) => (
+          <div key={idx} className="h-36 rounded-2xl bg-white border border-zinc-200 p-5 animate-pulse">
+            <div className="h-3.5 w-32 rounded bg-zinc-200 mb-4"></div>
+            <div className="space-y-2">
+              <div className="h-5 rounded bg-zinc-150 w-full"></div>
+              <div className="h-5 rounded bg-zinc-150 w-full"></div>
+            </div>
+          </div>
+        ))}
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="w-full rounded-2xl border border-red-150 bg-red-50 p-6 text-center text-red-700">
-        <p className="font-semibold">ไม่สามารถเรียกข้อมูลโมเดลทำนายผล AI ได้</p>
+      <div className="w-full rounded-2xl border border-red-150 bg-red-50 p-5 text-center text-red-700 text-sm">
+        <p className="font-bold">ไม่สามารถดึงข้อมูลทำนายผล AI ได้</p>
         <p className="text-xs text-red-500 mt-1">{error}</p>
-        <p className="text-xs text-zinc-500 mt-3">
-          หมายเหตุ: โปรดตรวจสอบว่ารันโมเดล LSTM ใน Backend backend/ml/models เรียบร้อยแล้ว
+        <p className="text-xs text-zinc-400 mt-3">
+          โปรดตรวจสอบว่าเปิดใช้งาน FastAPI server และเทรนโมเดล LSTM ใน backend/ml/models เรียบร้อยแล้ว
         </p>
       </div>
     );
   }
 
-  if (!data) {
-    return (
-      <div className="w-full rounded-2xl border border-zinc-200 bg-white p-8 text-center text-zinc-500">
-        ไม่มีข้อมูลทำนายผลหวยล่าสุด
-      </div>
-    );
-  }
+  if (!data) return null;
 
-  const hasPredictions =
-    (data.predictions.last_2 && data.predictions.last_2.length > 0) ||
-    (data.predictions.last_3 && data.predictions.last_3.length > 0);
+  const preds = data.predictions;
 
   return (
     <div className="w-full space-y-6">
-      {/* Prediction Schedule Card */}
-      <div className="rounded-2xl border border-zinc-200 bg-zinc-950 text-white p-6 shadow-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <span className="inline-flex items-center rounded-full bg-zinc-800 px-2.5 py-0.5 text-xs font-semibold text-zinc-300">
-              ระบบวิเคราะห์ด้วยปัญญาประดิษฐ์ (Ensemble Model)
-            </span>
-            <h3 className="text-lg font-bold text-white mt-1.5">
-              เลขแนะนำสำหรับงวดถัดไป: {formatDate(data.next_draw_date)}
-            </h3>
-          </div>
-          <div className="text-xs text-zinc-400 bg-zinc-900 border border-zinc-800 rounded-lg p-2.5">
-            <div>อ้างอิงข้อมูลงวดล่าสุด: {formatDate(data.latest_draw_date)}</div>
-            <div className="mt-0.5">โมเดลประมวลผล: LSTM 60% + Frequency 40%</div>
-          </div>
+      {/* Title Header */}
+      <div className="rounded-xl border border-zinc-200 bg-zinc-950 text-white px-4 py-3 shadow-sm flex items-center justify-between text-xs">
+        <span className="font-semibold">ระบบประเมินความน่าจะเป็น (Ensemble AI)</span>
+        <span className="text-zinc-400 font-mono text-[9px]">LSTM 60% + Freq 40%</span>
+      </div>
+
+      {/* --- Section 1: หมวดหมู่ 3 ตัว --- */}
+      <div className="space-y-3">
+        <div className="border-l-2 border-zinc-900 pl-2">
+          <h3 className="text-xs font-bold text-zinc-900 uppercase tracking-wider">ทำนายผลรางวัล 3 ตัว</h3>
+        </div>
+        <div className="grid grid-cols-1 gap-3">
+          {renderPredictionList(
+            "เลขท้าย 3 ตัวบน (ตรง)",
+            "ประเมินตามโอกาสการออกรางวัล 3 ตัวบนตรงแบบระบุหลัก",
+            preds.three_up,
+            300,
+            "tracking-wider"
+          )}
+          {renderPredictionList(
+            "เลขท้าย 3 ตัวบน (โต๊ด)",
+            "กลุ่มเลข 3 ตัวสลับตำแหน่งกัน (โอกาสถูกรางวัลสูงขึ้น)",
+            preds.three_todd,
+            120, // Todd has lower individual probabilities because they represent permutations
+            "tracking-widest"
+          )}
         </div>
       </div>
 
-      {!hasPredictions ? (
-        <div className="rounded-2xl border border-zinc-200 bg-white p-8 text-center text-zinc-500">
-          ไม่พบข้อมูลเลขทำนายในงวดนี้
+      {/* --- Section 2: หมวดหมู่ 2 ตัว --- */}
+      <div className="space-y-3">
+        <div className="border-l-2 border-zinc-900 pl-2">
+          <h3 className="text-xs font-bold text-zinc-900 uppercase tracking-wider">ทำนายผลรางวัล 2 ตัว</h3>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* 2-Digit Predictions */}
-          <div className="rounded-2xl border border-zinc-200 bg-white p-5 sm:p-6 shadow-sm flex flex-col justify-between">
-            <div>
-              <h4 className="text-sm font-bold text-zinc-950 mb-1">
-                เลขแนะนำ 2 ตัวท้าย (Top 5 Recommendations)
-              </h4>
-              <p className="text-xs text-zinc-500 mb-4">
-                คำนวณผ่านโครงข่ายประสาทเทียม LSTM ผสานกับความน่าจะเป็นตามสถิติความถี่
-              </p>
-
-              <div className="space-y-3">
-                {data.predictions.last_2?.map((item, idx) => (
-                  <div key={item.number} className="space-y-1">
-                    <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs font-bold text-zinc-400 w-5">#{idx + 1}</span>
-                        <span className="font-extrabold text-zinc-950 font-mono text-lg bg-zinc-100 px-3 py-0.5 rounded-lg">
-                          {item.number}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1.5 text-xs text-zinc-500 font-semibold">
-                        <span>โอกาส:</span>
-                        <span className="text-zinc-900 font-bold">{toPercentage(item.probability)}</span>
-                      </div>
-                    </div>
-                    {/* Visual bar */}
-                    <div className="w-full bg-zinc-100 h-1.5 rounded-full overflow-hidden">
-                      <div
-                        style={{ width: `${Math.min(item.probability * 300, 100)}%` }}
-                        className="bg-zinc-900 h-full rounded-full transition-all duration-500"
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            <div className="mt-6 border-t border-zinc-100 pt-4 text-[10px] text-zinc-400">
-              * ข้อมูลความน่าจะเป็นเป็นการวิเคราะห์ทางคณิตศาสตร์จากข้อมูลดิบในอดีตเท่านั้น
-            </div>
-          </div>
-
-          {/* 3-Digit Predictions */}
-          <div className="rounded-2xl border border-zinc-200 bg-white p-5 sm:p-6 shadow-sm flex flex-col justify-between">
-            <div>
-              <h4 className="text-sm font-bold text-zinc-950 mb-1">
-                เลขแนะนำ 3 ตัวท้าย (Top 5 Recommendations)
-              </h4>
-              <p className="text-xs text-zinc-500 mb-4">
-                วิเคราะห์แนวโน้มการออกเลขรางวัล 3 ตัวตรง/โต๊ด โดยใช้ Deep Learning
-              </p>
-
-              <div className="space-y-3">
-                {data.predictions.last_3?.map((item, idx) => (
-                  <div key={item.number} className="space-y-1">
-                    <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs font-bold text-zinc-400 w-5">#{idx + 1}</span>
-                        <span className="font-extrabold text-zinc-950 font-mono text-lg bg-zinc-100 px-3 py-0.5 rounded-lg tracking-wider">
-                          {item.number}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1.5 text-xs text-zinc-500 font-semibold">
-                        <span>โอกาส:</span>
-                        <span className="text-zinc-900 font-bold">{toPercentage(item.probability)}</span>
-                      </div>
-                    </div>
-                    {/* Visual bar */}
-                    <div className="w-full bg-zinc-100 h-1.5 rounded-full overflow-hidden">
-                      <div
-                        style={{ width: `${Math.min(item.probability * 500, 100)}%` }}
-                        className="bg-zinc-700 h-full rounded-full transition-all duration-500"
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-6 border-t border-zinc-100 pt-4 text-[10px] text-zinc-400">
-              * ข้อมูลชุดนี้อัปเดตผ่านระบบ Ensemble Model โดยอัตโนมัติเมื่อตรวจพบรางวัลล่าสุด
-            </div>
-          </div>
+        <div className="grid grid-cols-1 gap-3">
+          {renderPredictionList(
+            "เลขท้าย 2 ตัวบน",
+            "ความน่าจะเป็นสะสมของ 2 หลักสุดท้ายของรางวัลที่ 1",
+            preds.two_up,
+            300
+          )}
+          {renderPredictionList(
+            "เลขท้าย 2 ตัวล่าง",
+            "คำนวณจากความถี่และโครงข่ายประสาทเทียมสำหรับ 2 ตัวล่างตรง",
+            preds.two_down,
+            300
+          )}
         </div>
-      )}
+      </div>
+
+      {/* --- Section 3: หมวดหมู่เลขวิ่งเดี่ยว --- */}
+      <div className="space-y-3">
+        <div className="border-l-2 border-zinc-900 pl-2">
+          <h3 className="text-xs font-bold text-zinc-900 uppercase tracking-wider">ทำนายเลขเด่นตัวเดียว (เลขวิ่ง)</h3>
+        </div>
+        <div className="grid grid-cols-1 gap-3">
+          {renderPredictionList(
+            "วิ่งบน (เด่น 3 ตัวบน)",
+            "ตัวเลขเดี่ยว 0-9 ที่มีโอกาสสอดแทรกอยู่ในรางวัล 3 ตัวบนมากที่สุด",
+            preds.run_up,
+            120
+          )}
+          {renderPredictionList(
+            "วิ่งล่าง (เด่น 2 ตัวล่าง)",
+            "ตัวเลขเดี่ยว 0-9 ที่มีโอกาสสอดแทรกอยู่ในรางวัล 2 ตัวล่างมากที่สุด",
+            preds.run_down,
+            150
+          )}
+        </div>
+      </div>
     </div>
   );
 }

@@ -76,7 +76,7 @@ export default function LottoCard({ type, data, loading, error }: LottoCardProps
           </h2>
         </div>
         <div className="mt-2 sm:mt-0 text-left sm:text-right text-xs text-zinc-500">
-          <div>งวดที่: {data.draw_number || "-"}</div>
+          {/* <div>งวดที่: {data.draw_number || "-"}</div> */}
           {data.fetched_at && (
             <div className="text-[10px] text-zinc-400 mt-0.5">
               อัปเดตล่าสุด: {new Date(data.fetched_at).toLocaleTimeString("th-TH")}
@@ -88,7 +88,7 @@ export default function LottoCard({ type, data, loading, error }: LottoCardProps
       {/* Main Prize */}
       <div className="bg-zinc-50 rounded-xl p-6 sm:p-8 text-center border border-zinc-100">
         <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2">
-          {isGlo ? "รางวัลที่ 1" : "เลขรางวัลพัฒนา"}
+          {isGlo ? "รางวัลที่ 1" : "เลขท้าย 4 ตัว"}
         </p>
         <div className="text-4xl sm:text-5xl font-extrabold tracking-widest text-zinc-950 select-all font-mono">
           {data.primary || "------"}
@@ -150,14 +150,14 @@ export default function LottoCard({ type, data, loading, error }: LottoCardProps
           </div>
         ) : (
           /* Lao Secondary Prizes */
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {/* 4 Digits */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* 4 Digits
             <div className="rounded-xl border border-zinc-200 bg-white p-4 text-center">
-              <p className="text-xs font-medium text-zinc-500 mb-1">เลข 4 ตัว</p>
+              <p className="text-xs font-medium text-zinc-500 mb-1">เลขท้าย 4 ตัว</p>
               <p className="text-2xl font-bold text-zinc-950 font-mono">
                 {data.secondary?.digits_4 || "--"}
               </p>
-            </div>
+            </div> */}
             
             {/* 3 Digits */}
             <div className="rounded-xl border border-zinc-200 bg-white p-4 text-center">

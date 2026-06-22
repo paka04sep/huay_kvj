@@ -29,6 +29,7 @@ app = FastAPI(
 origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "http://192.168.1.118:3000",
 ]
 
 # อนุญาตให้เปิดกำหนด origins ผ่าน env ได้
