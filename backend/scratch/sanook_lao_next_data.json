@@ -1,0 +1,1082 @@
+{
+  "props": {
+    "pageProps": {
+      "isMobile": false,
+      "isTablet": false,
+      "isBotCrawler": false,
+      "location": {
+        "asPath": "/news/laolotto/19062569/",
+        "pathname": "/channels/news/laolotto-entry",
+        "query": {
+          "date": "19062569"
+        }
+      }
+    },
+    "serverState": {
+      "initialState": {
+        "ui": {
+          "textSize": {
+            "size": 2,
+            "sizeClass": "size16"
+          },
+          "tabPrefetched": {
+            "fetched": false
+          },
+          "orientation": "",
+          "coverPage": {
+            "idRef": ""
+          },
+          "inreadRelated": {
+            "willShow": false,
+            "showed": false
+          },
+          "footer": {
+            "display": true
+          },
+          "consentBanner": {
+            "shown": false
+          },
+          "cookieSetting": {},
+          "taboola": {
+            "display": false
+          },
+          "swipeNext": {
+            "start": 0,
+            "current": 0
+          }
+        },
+        "pageInfo": {
+          "channel": "news",
+          "group": "readpage",
+          "primaryCategory": "laolotto",
+          "routeOptions": {
+            "prefix": "https://www.sanook.com",
+            "pageType": "readpage",
+            "primaryCategory": "laolotto",
+            "categories": [
+              "laolotto"
+            ]
+          },
+          "loading": false,
+          "ready": true,
+          "categories": [],
+          "subcategories": [],
+          "tags": "",
+          "partner": ""
+        },
+        "joox": {
+          "showPlayer": {
+            "status": false,
+            "delay": 5000
+          },
+          "showSearch": {
+            "isOpen": false
+          }
+        },
+        "location": {
+          "isEntertain": false
+        },
+        "history": [],
+        "ads": {
+          "sponsorship": {
+            "showSponsorship": false
+          },
+          "musicRecA": false,
+          "mobileDarkModeAd": {
+            "shown": false,
+            "darkMode": false,
+            "shouldShow": false
+          },
+          "smartBanner": {
+            "overLimit": false,
+            "limit": 0
+          },
+          "mobileAdhesionSticky": {
+            "shown": false,
+            "shouldRender": null
+          },
+          "stickyRecA": {
+            "shown": false
+          },
+          "desktopInview": {
+            "shown": false
+          },
+          "universalb": {
+            "show": true
+          },
+          "mobileExpandableAdhesion": {
+            "shown": false
+          }
+        },
+        "tts": {
+          "isPlaying": false,
+          "isFirstTime": true,
+          "isCount": false,
+          "time": 0,
+          "isShowSurvey": false,
+          "isShowPopup": false,
+          "currentId": null
+        },
+        "entryMobile": {
+          "firstContent": {},
+          "gototop": {}
+        },
+        "excludeEntries": {
+          "firstPage": null,
+          "video": null
+        },
+        "video": {
+          "played": false,
+          "currentItem": false,
+          "updatedVastTimestamp": null
+        },
+        "findluckynumbers": {
+          "playedDetail": false
+        }
+      },
+      "apollo": {
+        "data": {
+          "ROOT_QUERY": {
+            "entryCategories({\"channel\":\"firstpage\",\"group\":\"STORY\"})": [],
+            "laoLotto({\"date\":\"19062569\"})": {
+              "type": "id",
+              "generated": true,
+              "id": "$ROOT_QUERY.laoLotto({\"date\":\"19062569\"})",
+              "typename": "LaoLotto"
+            },
+            "laoLottoes({\"first\":6})": {
+              "type": "id",
+              "generated": true,
+              "id": "$ROOT_QUERY.laoLottoes({\"first\":6})",
+              "typename": "LaoLottoConnection"
+            },
+            "laoLottoes({\"first\":10})": {
+              "type": "id",
+              "generated": true,
+              "id": "$ROOT_QUERY.laoLottoes({\"first\":10})",
+              "typename": "LaoLottoConnection"
+            }
+          },
+          "$ROOT_QUERY.laoLotto({\"date\":\"19062569\"})": {
+            "id": "1764",
+            "title": "ตรวจหวยลาว งวดประจำวันที่ 19 มิถุนายน 2569",
+            "thumbnail": "",
+            "issueDateOnHuman({\"autoRelative\":false,\"format\":\"D MMMM YYYY\",\"locale\":\"th\"})": "19 มิถุนายน 2569",
+            "issueDateOnHuman({\"autoRelative\":false,\"format\":\"DD/MM/YY\",\"locale\":\"th\"})": "19/06/69",
+            "dateSlug": "19062569",
+            "prizeResult": {
+              "type": "id",
+              "generated": true,
+              "id": "$ROOT_QUERY.laoLotto({\"date\":\"19062569\"}).prizeResult",
+              "typename": "LaoLottoResult"
+            },
+            "__typename": "LaoLotto"
+          },
+          "$ROOT_QUERY.laoLotto({\"date\":\"19062569\"}).prizeResult": {
+            "last4Prize": "4240",
+            "animalName": "อินทรี",
+            "last3Prize1": "240",
+            "last3Prize2": "40",
+            "animalName1": "",
+            "animalNumber1": "",
+            "animalName2": "",
+            "animalNumber2": "",
+            "animalName3": "",
+            "animalNumber3": "",
+            "devNumberSet": {
+              "type": "json",
+              "json": [
+                "35",
+                "43",
+                "21",
+                "07",
+                "12"
+              ]
+            },
+            "__typename": "LaoLottoResult"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":6})": {
+            "lottosCount": 998,
+            "pageInfo": {
+              "type": "id",
+              "generated": true,
+              "id": "$ROOT_QUERY.laoLottoes({\"first\":6}).pageInfo",
+              "typename": "PageInfo"
+            },
+            "edges": [
+              {
+                "type": "id",
+                "generated": true,
+                "id": "$ROOT_QUERY.laoLottoes({\"first\":6}).edges.0",
+                "typename": "LaoLottoEdge"
+              },
+              {
+                "type": "id",
+                "generated": true,
+                "id": "$ROOT_QUERY.laoLottoes({\"first\":6}).edges.1",
+                "typename": "LaoLottoEdge"
+              },
+              {
+                "type": "id",
+                "generated": true,
+                "id": "$ROOT_QUERY.laoLottoes({\"first\":6}).edges.2",
+                "typename": "LaoLottoEdge"
+              },
+              {
+                "type": "id",
+                "generated": true,
+                "id": "$ROOT_QUERY.laoLottoes({\"first\":6}).edges.3",
+                "typename": "LaoLottoEdge"
+              },
+              {
+                "type": "id",
+                "generated": true,
+                "id": "$ROOT_QUERY.laoLottoes({\"first\":6}).edges.4",
+                "typename": "LaoLottoEdge"
+              },
+              {
+                "type": "id",
+                "generated": true,
+                "id": "$ROOT_QUERY.laoLottoes({\"first\":6}).edges.5",
+                "typename": "LaoLottoEdge"
+              }
+            ],
+            "__typename": "LaoLottoConnection"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":6}).pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "MTc4MTUzMDA4MA==",
+            "startCursor": "MTc4MjExNDMwMA==",
+            "hasPreviousPage": false,
+            "__typename": "PageInfo"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":6}).edges.0": {
+            "cursor": "MTc4MjExNDMwMA==",
+            "node": {
+              "type": "id",
+              "generated": true,
+              "id": "$ROOT_QUERY.laoLottoes({\"first\":6}).edges.0.node",
+              "typename": "LaoLotto"
+            },
+            "__typename": "LaoLottoEdge"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":6}).edges.0.node": {
+            "id": "1765",
+            "title": "ตรวจหวยลาว งวดประจำวันที่ 22 มิถุนายน 2569.",
+            "issueDateOnHuman({\"autoRelative\":false,\"format\":\"D MMMM YYYY\",\"locale\":\"th\"})": "22 มิถุนายน 2569",
+            "dateSlug": "22062569",
+            "prizeResult": {
+              "type": "id",
+              "generated": true,
+              "id": "$ROOT_QUERY.laoLottoes({\"first\":6}).edges.0.node.prizeResult",
+              "typename": "LaoLottoResult"
+            },
+            "__typename": "LaoLotto"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":6}).edges.0.node.prizeResult": {
+            "last4Prize": "",
+            "animalName": "",
+            "last3Prize1": "",
+            "last3Prize2": "",
+            "animalName1": "",
+            "animalNumber1": "",
+            "animalName2": "",
+            "animalNumber2": "",
+            "animalName3": "",
+            "animalNumber3": "",
+            "devNumberSet": {
+              "type": "json",
+              "json": [
+                "xx",
+                "xx",
+                "xx",
+                "xx",
+                "xx"
+              ]
+            },
+            "__typename": "LaoLottoResult"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":6}).edges.1": {
+            "cursor": "MTc4MTg3NTkyMA==",
+            "node": {
+              "type": "id",
+              "generated": true,
+              "id": "$ROOT_QUERY.laoLottoes({\"first\":6}).edges.1.node",
+              "typename": "LaoLotto"
+            },
+            "__typename": "LaoLottoEdge"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":6}).edges.1.node": {
+            "id": "1764",
+            "title": "ตรวจหวยลาว งวดประจำวันที่ 19 มิถุนายน 2569",
+            "issueDateOnHuman({\"autoRelative\":false,\"format\":\"D MMMM YYYY\",\"locale\":\"th\"})": "19 มิถุนายน 2569",
+            "dateSlug": "19062569",
+            "prizeResult": {
+              "type": "id",
+              "generated": true,
+              "id": "$ROOT_QUERY.laoLottoes({\"first\":6}).edges.1.node.prizeResult",
+              "typename": "LaoLottoResult"
+            },
+            "__typename": "LaoLotto"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":6}).edges.1.node.prizeResult": {
+            "last4Prize": "4240",
+            "animalName": "อินทรี",
+            "last3Prize1": "240",
+            "last3Prize2": "40",
+            "animalName1": "",
+            "animalNumber1": "",
+            "animalName2": "",
+            "animalNumber2": "",
+            "animalName3": "",
+            "animalNumber3": "",
+            "devNumberSet": {
+              "type": "json",
+              "json": [
+                "35",
+                "43",
+                "21",
+                "07",
+                "12"
+              ]
+            },
+            "__typename": "LaoLottoResult"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":6}).edges.2": {
+            "cursor": "MTc4MTc5MTYyMA==",
+            "node": {
+              "type": "id",
+              "generated": true,
+              "id": "$ROOT_QUERY.laoLottoes({\"first\":6}).edges.2.node",
+              "typename": "LaoLotto"
+            },
+            "__typename": "LaoLottoEdge"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":6}).edges.2.node": {
+            "id": "1762",
+            "title": "ตรวจหวยลาว งวดประจำวันที่ 18 มิถุนายน 2569",
+            "issueDateOnHuman({\"autoRelative\":false,\"format\":\"D MMMM YYYY\",\"locale\":\"th\"})": "18 มิถุนายน 2569",
+            "dateSlug": "18062569",
+            "prizeResult": {
+              "type": "id",
+              "generated": true,
+              "id": "$ROOT_QUERY.laoLottoes({\"first\":6}).edges.2.node.prizeResult",
+              "typename": "LaoLottoResult"
+            },
+            "__typename": "LaoLotto"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":6}).edges.2.node.prizeResult": {
+            "last4Prize": "3430",
+            "animalName": "ปลาใหญ่",
+            "last3Prize1": "430",
+            "last3Prize2": "30",
+            "animalName1": "",
+            "animalNumber1": "",
+            "animalName2": "",
+            "animalNumber2": "",
+            "animalName3": "",
+            "animalNumber3": "",
+            "devNumberSet": {
+              "type": "json",
+              "json": [
+                "xx",
+                "xx",
+                "xx",
+                "xx",
+                "xx"
+              ]
+            },
+            "__typename": "LaoLottoResult"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":6}).edges.3": {
+            "cursor": "MTc4MTcwMzcyMA==",
+            "node": {
+              "type": "id",
+              "generated": true,
+              "id": "$ROOT_QUERY.laoLottoes({\"first\":6}).edges.3.node",
+              "typename": "LaoLotto"
+            },
+            "__typename": "LaoLottoEdge"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":6}).edges.3.node": {
+            "id": "1761",
+            "title": "ตรวจหวยลาว งวดประจำวันที่ 17 มิถุนายน 2569...",
+            "issueDateOnHuman({\"autoRelative\":false,\"format\":\"D MMMM YYYY\",\"locale\":\"th\"})": "17 มิถุนายน 2569",
+            "dateSlug": "17062569",
+            "prizeResult": {
+              "type": "id",
+              "generated": true,
+              "id": "$ROOT_QUERY.laoLottoes({\"first\":6}).edges.3.node.prizeResult",
+              "typename": "LaoLottoResult"
+            },
+            "__typename": "LaoLotto"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":6}).edges.3.node.prizeResult": {
+            "last4Prize": "3303",
+            "animalName": "ห่าน",
+            "last3Prize1": "303",
+            "last3Prize2": "03",
+            "animalName1": "",
+            "animalNumber1": "",
+            "animalName2": "",
+            "animalNumber2": "",
+            "animalName3": "",
+            "animalNumber3": "",
+            "devNumberSet": {
+              "type": "json",
+              "json": [
+                "44",
+                "09",
+                "28",
+                "39",
+                "20"
+              ]
+            },
+            "__typename": "LaoLottoResult"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":6}).edges.4": {
+            "cursor": "MTc4MTU5Mzc0MA==",
+            "node": {
+              "type": "id",
+              "generated": true,
+              "id": "$ROOT_QUERY.laoLottoes({\"first\":6}).edges.4.node",
+              "typename": "LaoLotto"
+            },
+            "__typename": "LaoLottoEdge"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":6}).edges.4.node": {
+            "id": "1759",
+            "title": "ตรวจหวยลาว งวดประจำวันที่ 16 มิถุนายน 2569.",
+            "issueDateOnHuman({\"autoRelative\":false,\"format\":\"D MMMM YYYY\",\"locale\":\"th\"})": "16 มิถุนายน 2569",
+            "dateSlug": "16062569",
+            "prizeResult": {
+              "type": "id",
+              "generated": true,
+              "id": "$ROOT_QUERY.laoLottoes({\"first\":6}).edges.4.node.prizeResult",
+              "typename": "LaoLottoResult"
+            },
+            "__typename": "LaoLotto"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":6}).edges.4.node.prizeResult": {
+            "last4Prize": "5883",
+            "animalName": "ห่าน",
+            "last3Prize1": "883",
+            "last3Prize2": "83",
+            "animalName1": "",
+            "animalNumber1": "",
+            "animalName2": "",
+            "animalNumber2": "",
+            "animalName3": "",
+            "animalNumber3": "",
+            "devNumberSet": {
+              "type": "json",
+              "json": [
+                "xx",
+                "xx",
+                "xx",
+                "xx",
+                "xx"
+              ]
+            },
+            "__typename": "LaoLottoResult"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":6}).edges.5": {
+            "cursor": "MTc4MTUzMDA4MA==",
+            "node": {
+              "type": "id",
+              "generated": true,
+              "id": "$ROOT_QUERY.laoLottoes({\"first\":6}).edges.5.node",
+              "typename": "LaoLotto"
+            },
+            "__typename": "LaoLottoEdge"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":6}).edges.5.node": {
+            "id": "1758",
+            "title": "ตรวจหวยลาว งวดประจำวันที่ 15 มิถุนายน 2569..",
+            "issueDateOnHuman({\"autoRelative\":false,\"format\":\"D MMMM YYYY\",\"locale\":\"th\"})": "15 มิถุนายน 2569",
+            "dateSlug": "15062569",
+            "prizeResult": {
+              "type": "id",
+              "generated": true,
+              "id": "$ROOT_QUERY.laoLottoes({\"first\":6}).edges.5.node.prizeResult",
+              "typename": "LaoLottoResult"
+            },
+            "__typename": "LaoLotto"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":6}).edges.5.node.prizeResult": {
+            "last4Prize": "2113",
+            "animalName": "ช้าง",
+            "last3Prize1": "113",
+            "last3Prize2": "13",
+            "animalName1": "",
+            "animalNumber1": "",
+            "animalName2": "",
+            "animalNumber2": "",
+            "animalName3": "",
+            "animalNumber3": "",
+            "devNumberSet": {
+              "type": "json",
+              "json": [
+                "36",
+                "30",
+                "19",
+                "03",
+                "21"
+              ]
+            },
+            "__typename": "LaoLottoResult"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":10})": {
+            "lottosCount": 998,
+            "pageInfo": {
+              "type": "id",
+              "generated": true,
+              "id": "$ROOT_QUERY.laoLottoes({\"first\":10}).pageInfo",
+              "typename": "PageInfo"
+            },
+            "edges": [
+              {
+                "type": "id",
+                "generated": true,
+                "id": "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.0",
+                "typename": "LaoLottoEdge"
+              },
+              {
+                "type": "id",
+                "generated": true,
+                "id": "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.1",
+                "typename": "LaoLottoEdge"
+              },
+              {
+                "type": "id",
+                "generated": true,
+                "id": "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.2",
+                "typename": "LaoLottoEdge"
+              },
+              {
+                "type": "id",
+                "generated": true,
+                "id": "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.3",
+                "typename": "LaoLottoEdge"
+              },
+              {
+                "type": "id",
+                "generated": true,
+                "id": "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.4",
+                "typename": "LaoLottoEdge"
+              },
+              {
+                "type": "id",
+                "generated": true,
+                "id": "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.5",
+                "typename": "LaoLottoEdge"
+              },
+              {
+                "type": "id",
+                "generated": true,
+                "id": "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.6",
+                "typename": "LaoLottoEdge"
+              },
+              {
+                "type": "id",
+                "generated": true,
+                "id": "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.7",
+                "typename": "LaoLottoEdge"
+              },
+              {
+                "type": "id",
+                "generated": true,
+                "id": "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.8",
+                "typename": "LaoLottoEdge"
+              },
+              {
+                "type": "id",
+                "generated": true,
+                "id": "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.9",
+                "typename": "LaoLottoEdge"
+              }
+            ],
+            "__typename": "LaoLottoConnection"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":10}).pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "MTc4MDk5MDY4MA==",
+            "startCursor": "MTc4MjExNDMwMA==",
+            "hasPreviousPage": false,
+            "__typename": "PageInfo"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.0": {
+            "cursor": "MTc4MjExNDMwMA==",
+            "node": {
+              "type": "id",
+              "generated": true,
+              "id": "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.0.node",
+              "typename": "LaoLotto"
+            },
+            "__typename": "LaoLottoEdge"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.0.node": {
+            "id": "1765",
+            "title": "ตรวจหวยลาว งวดประจำวันที่ 22 มิถุนายน 2569.",
+            "issueDateOnHuman({\"autoRelative\":false,\"format\":\"D MMMM YYYY\",\"locale\":\"th\"})": "22 มิถุนายน 2569",
+            "dateSlug": "22062569",
+            "prizeResult": {
+              "type": "id",
+              "generated": true,
+              "id": "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.0.node.prizeResult",
+              "typename": "LaoLottoResult"
+            },
+            "__typename": "LaoLotto"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.0.node.prizeResult": {
+            "last4Prize": "",
+            "animalName": "",
+            "last3Prize1": "",
+            "last3Prize2": "",
+            "animalName1": "",
+            "animalNumber1": "",
+            "animalName2": "",
+            "animalNumber2": "",
+            "animalName3": "",
+            "animalNumber3": "",
+            "devNumberSet": {
+              "type": "json",
+              "json": [
+                "xx",
+                "xx",
+                "xx",
+                "xx",
+                "xx"
+              ]
+            },
+            "__typename": "LaoLottoResult"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.1": {
+            "cursor": "MTc4MTg3NTkyMA==",
+            "node": {
+              "type": "id",
+              "generated": true,
+              "id": "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.1.node",
+              "typename": "LaoLotto"
+            },
+            "__typename": "LaoLottoEdge"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.1.node": {
+            "id": "1764",
+            "title": "ตรวจหวยลาว งวดประจำวันที่ 19 มิถุนายน 2569",
+            "issueDateOnHuman({\"autoRelative\":false,\"format\":\"D MMMM YYYY\",\"locale\":\"th\"})": "19 มิถุนายน 2569",
+            "dateSlug": "19062569",
+            "prizeResult": {
+              "type": "id",
+              "generated": true,
+              "id": "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.1.node.prizeResult",
+              "typename": "LaoLottoResult"
+            },
+            "__typename": "LaoLotto"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.1.node.prizeResult": {
+            "last4Prize": "4240",
+            "animalName": "อินทรี",
+            "last3Prize1": "240",
+            "last3Prize2": "40",
+            "animalName1": "",
+            "animalNumber1": "",
+            "animalName2": "",
+            "animalNumber2": "",
+            "animalName3": "",
+            "animalNumber3": "",
+            "devNumberSet": {
+              "type": "json",
+              "json": [
+                "35",
+                "43",
+                "21",
+                "07",
+                "12"
+              ]
+            },
+            "__typename": "LaoLottoResult"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.2": {
+            "cursor": "MTc4MTc5MTYyMA==",
+            "node": {
+              "type": "id",
+              "generated": true,
+              "id": "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.2.node",
+              "typename": "LaoLotto"
+            },
+            "__typename": "LaoLottoEdge"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.2.node": {
+            "id": "1762",
+            "title": "ตรวจหวยลาว งวดประจำวันที่ 18 มิถุนายน 2569",
+            "issueDateOnHuman({\"autoRelative\":false,\"format\":\"D MMMM YYYY\",\"locale\":\"th\"})": "18 มิถุนายน 2569",
+            "dateSlug": "18062569",
+            "prizeResult": {
+              "type": "id",
+              "generated": true,
+              "id": "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.2.node.prizeResult",
+              "typename": "LaoLottoResult"
+            },
+            "__typename": "LaoLotto"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.2.node.prizeResult": {
+            "last4Prize": "3430",
+            "animalName": "ปลาใหญ่",
+            "last3Prize1": "430",
+            "last3Prize2": "30",
+            "animalName1": "",
+            "animalNumber1": "",
+            "animalName2": "",
+            "animalNumber2": "",
+            "animalName3": "",
+            "animalNumber3": "",
+            "devNumberSet": {
+              "type": "json",
+              "json": [
+                "xx",
+                "xx",
+                "xx",
+                "xx",
+                "xx"
+              ]
+            },
+            "__typename": "LaoLottoResult"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.3": {
+            "cursor": "MTc4MTcwMzcyMA==",
+            "node": {
+              "type": "id",
+              "generated": true,
+              "id": "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.3.node",
+              "typename": "LaoLotto"
+            },
+            "__typename": "LaoLottoEdge"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.3.node": {
+            "id": "1761",
+            "title": "ตรวจหวยลาว งวดประจำวันที่ 17 มิถุนายน 2569...",
+            "issueDateOnHuman({\"autoRelative\":false,\"format\":\"D MMMM YYYY\",\"locale\":\"th\"})": "17 มิถุนายน 2569",
+            "dateSlug": "17062569",
+            "prizeResult": {
+              "type": "id",
+              "generated": true,
+              "id": "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.3.node.prizeResult",
+              "typename": "LaoLottoResult"
+            },
+            "__typename": "LaoLotto"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.3.node.prizeResult": {
+            "last4Prize": "3303",
+            "animalName": "ห่าน",
+            "last3Prize1": "303",
+            "last3Prize2": "03",
+            "animalName1": "",
+            "animalNumber1": "",
+            "animalName2": "",
+            "animalNumber2": "",
+            "animalName3": "",
+            "animalNumber3": "",
+            "devNumberSet": {
+              "type": "json",
+              "json": [
+                "44",
+                "09",
+                "28",
+                "39",
+                "20"
+              ]
+            },
+            "__typename": "LaoLottoResult"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.4": {
+            "cursor": "MTc4MTU5Mzc0MA==",
+            "node": {
+              "type": "id",
+              "generated": true,
+              "id": "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.4.node",
+              "typename": "LaoLotto"
+            },
+            "__typename": "LaoLottoEdge"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.4.node": {
+            "id": "1759",
+            "title": "ตรวจหวยลาว งวดประจำวันที่ 16 มิถุนายน 2569.",
+            "issueDateOnHuman({\"autoRelative\":false,\"format\":\"D MMMM YYYY\",\"locale\":\"th\"})": "16 มิถุนายน 2569",
+            "dateSlug": "16062569",
+            "prizeResult": {
+              "type": "id",
+              "generated": true,
+              "id": "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.4.node.prizeResult",
+              "typename": "LaoLottoResult"
+            },
+            "__typename": "LaoLotto"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.4.node.prizeResult": {
+            "last4Prize": "5883",
+            "animalName": "ห่าน",
+            "last3Prize1": "883",
+            "last3Prize2": "83",
+            "animalName1": "",
+            "animalNumber1": "",
+            "animalName2": "",
+            "animalNumber2": "",
+            "animalName3": "",
+            "animalNumber3": "",
+            "devNumberSet": {
+              "type": "json",
+              "json": [
+                "xx",
+                "xx",
+                "xx",
+                "xx",
+                "xx"
+              ]
+            },
+            "__typename": "LaoLottoResult"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.5": {
+            "cursor": "MTc4MTUzMDA4MA==",
+            "node": {
+              "type": "id",
+              "generated": true,
+              "id": "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.5.node",
+              "typename": "LaoLotto"
+            },
+            "__typename": "LaoLottoEdge"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.5.node": {
+            "id": "1758",
+            "title": "ตรวจหวยลาว งวดประจำวันที่ 15 มิถุนายน 2569..",
+            "issueDateOnHuman({\"autoRelative\":false,\"format\":\"D MMMM YYYY\",\"locale\":\"th\"})": "15 มิถุนายน 2569",
+            "dateSlug": "15062569",
+            "prizeResult": {
+              "type": "id",
+              "generated": true,
+              "id": "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.5.node.prizeResult",
+              "typename": "LaoLottoResult"
+            },
+            "__typename": "LaoLotto"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.5.node.prizeResult": {
+            "last4Prize": "2113",
+            "animalName": "ช้าง",
+            "last3Prize1": "113",
+            "last3Prize2": "13",
+            "animalName1": "",
+            "animalNumber1": "",
+            "animalName2": "",
+            "animalNumber2": "",
+            "animalName3": "",
+            "animalNumber3": "",
+            "devNumberSet": {
+              "type": "json",
+              "json": [
+                "36",
+                "30",
+                "19",
+                "03",
+                "21"
+              ]
+            },
+            "__typename": "LaoLottoResult"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.6": {
+            "cursor": "MTc4MTI3MTEyMA==",
+            "node": {
+              "type": "id",
+              "generated": true,
+              "id": "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.6.node",
+              "typename": "LaoLotto"
+            },
+            "__typename": "LaoLottoEdge"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.6.node": {
+            "id": "1757",
+            "title": "ตรวจหวยลาว งวดประจำวันที่ 12 มิถุนายน 2569",
+            "issueDateOnHuman({\"autoRelative\":false,\"format\":\"D MMMM YYYY\",\"locale\":\"th\"})": "12 มิถุนายน 2569",
+            "dateSlug": "12062569",
+            "prizeResult": {
+              "type": "id",
+              "generated": true,
+              "id": "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.6.node.prizeResult",
+              "typename": "LaoLottoResult"
+            },
+            "__typename": "LaoLotto"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.6.node.prizeResult": {
+            "last4Prize": "5060",
+            "animalName": "ตะขาบ",
+            "last3Prize1": "060",
+            "last3Prize2": "60",
+            "animalName1": "",
+            "animalNumber1": "",
+            "animalName2": "",
+            "animalNumber2": "",
+            "animalName3": "",
+            "animalNumber3": "",
+            "devNumberSet": {
+              "type": "json",
+              "json": [
+                "11",
+                "07",
+                "35",
+                "03",
+                "01"
+              ]
+            },
+            "__typename": "LaoLottoResult"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.7": {
+            "cursor": "MTc4MTE4NDQyMA==",
+            "node": {
+              "type": "id",
+              "generated": true,
+              "id": "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.7.node",
+              "typename": "LaoLotto"
+            },
+            "__typename": "LaoLottoEdge"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.7.node": {
+            "id": "1755",
+            "title": "ตรวจหวยลาว งวดประจำวันที่ 11 มิถุนายน 2569",
+            "issueDateOnHuman({\"autoRelative\":false,\"format\":\"D MMMM YYYY\",\"locale\":\"th\"})": "11 มิถุนายน 2569",
+            "dateSlug": "11062569",
+            "prizeResult": {
+              "type": "id",
+              "generated": true,
+              "id": "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.7.node.prizeResult",
+              "typename": "LaoLottoResult"
+            },
+            "__typename": "LaoLotto"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.7.node.prizeResult": {
+            "last4Prize": "5411",
+            "animalName": "สุนัข",
+            "last3Prize1": "411",
+            "last3Prize2": "11",
+            "animalName1": "",
+            "animalNumber1": "",
+            "animalName2": "",
+            "animalNumber2": "",
+            "animalName3": "",
+            "animalNumber3": "",
+            "devNumberSet": {
+              "type": "json",
+              "json": [
+                "xx",
+                "xx",
+                "xx",
+                "xx",
+                "xx"
+              ]
+            },
+            "__typename": "LaoLottoResult"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.8": {
+            "cursor": "MTc4MTA5Nzk2MA==",
+            "node": {
+              "type": "id",
+              "generated": true,
+              "id": "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.8.node",
+              "typename": "LaoLotto"
+            },
+            "__typename": "LaoLottoEdge"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.8.node": {
+            "id": "1754",
+            "title": "ตรวจหวยลาว งวดประจำวันที่ 10 มิถุนายน 2569.",
+            "issueDateOnHuman({\"autoRelative\":false,\"format\":\"D MMMM YYYY\",\"locale\":\"th\"})": "10 มิถุนายน 2569",
+            "dateSlug": "10062569",
+            "prizeResult": {
+              "type": "id",
+              "generated": true,
+              "id": "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.8.node.prizeResult",
+              "typename": "LaoLottoResult"
+            },
+            "__typename": "LaoLotto"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.8.node.prizeResult": {
+            "last4Prize": "4557",
+            "animalName": "นกกระยาง",
+            "last3Prize1": "557",
+            "last3Prize2": "57",
+            "animalName1": "",
+            "animalNumber1": "",
+            "animalName2": "",
+            "animalNumber2": "",
+            "animalName3": "",
+            "animalNumber3": "",
+            "devNumberSet": {
+              "type": "json",
+              "json": [
+                "13",
+                "23",
+                "36",
+                "42",
+                "29"
+              ]
+            },
+            "__typename": "LaoLottoResult"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.9": {
+            "cursor": "MTc4MDk5MDY4MA==",
+            "node": {
+              "type": "id",
+              "generated": true,
+              "id": "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.9.node",
+              "typename": "LaoLotto"
+            },
+            "__typename": "LaoLottoEdge"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.9.node": {
+            "id": "1752",
+            "title": "ตรวจหวยลาว งวดประจำวันที่ 9 มิถุนายน 2569.",
+            "issueDateOnHuman({\"autoRelative\":false,\"format\":\"D MMMM YYYY\",\"locale\":\"th\"})": "9 มิถุนายน 2569",
+            "dateSlug": "09062569",
+            "prizeResult": {
+              "type": "id",
+              "generated": true,
+              "id": "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.9.node.prizeResult",
+              "typename": "LaoLottoResult"
+            },
+            "__typename": "LaoLotto"
+          },
+          "$ROOT_QUERY.laoLottoes({\"first\":10}).edges.9.node.prizeResult": {
+            "last4Prize": "5245",
+            "animalName": "สิงโต",
+            "last3Prize1": "245",
+            "last3Prize2": "45",
+            "animalName1": "",
+            "animalNumber1": "",
+            "animalName2": "",
+            "animalNumber2": "",
+            "animalName3": "",
+            "animalNumber3": "",
+            "devNumberSet": {
+              "type": "json",
+              "json": [
+                "xx",
+                "xx",
+                "xx",
+                "xx",
+                "xx"
+              ]
+            },
+            "__typename": "LaoLottoResult"
+          }
+        }
+      }
+    }
+  },
+  "page": "/channels/news/laolotto-entry",
+  "query": {
+    "date": "19062569"
+  },
+  "buildId": "xyzpVZyYm0RhYMQIR5RV1",
+  "assetPrefix": "//s.isanook.com/sr/0",
+  "isFallback": false,
+  "customServer": true,
+  "appGip": true,
+  "scriptLoader": []
+}
