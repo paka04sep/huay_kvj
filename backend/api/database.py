@@ -36,7 +36,8 @@ async def init_db_pool():
             DATABASE_URL,
             min_size=2,
             max_size=10,
-            max_inactive_connection_lifetime=300
+            max_inactive_connection_lifetime=300,
+            statement_cache_size=0  # ปิดการทำงาน Prepared Statements เพื่อให้ใช้กับ Supabase Pooler (พอร์ต 6543) ได้
         )
     return _pool
 

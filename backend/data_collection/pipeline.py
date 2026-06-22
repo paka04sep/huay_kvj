@@ -46,7 +46,7 @@ class DataPipeline:
         logger.info("Connecting to PostgreSQL database...")
         # รองรับ SSL Mode สำหรับ Supabase ในบางครั้ง
         # ถ้าติดปัญหา SSL สามารถปรับแต่งตรงนี้เพิ่มเติมได้
-        self.db_conn = await asyncpg.connect(DATABASE_URL)
+        self.db_conn = await asyncpg.connect(DATABASE_URL, statement_cache_size=0)
         logger.info("PostgreSQL database connected.")
 
         logger.info("Connecting to Redis...")
