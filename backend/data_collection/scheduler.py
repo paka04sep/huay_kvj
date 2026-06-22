@@ -94,25 +94,25 @@ async def main():
     logger.info("Added GLO cron job: 1st/16th of month at 15:00-15:50 every 10 mins.")
 
     # 2. หวยลาว (LAO)
-    # ออกทุกวัน จันทร์, พุธ, ศุกร์ ช่วงเวลา 20:35 น. - 21:00 น. (รันทุกๆ 5 นาที)
-    lao_trigger = CronTrigger(day_of_week="mon,wed,fri", hour="20", minute="35-59/5")
-    lao_trigger_21 = CronTrigger(day_of_week="mon,wed,fri", hour="21", minute="0")
+    # ออกทุกวัน จันทร์ - ศุกร์ ช่วงเวลา 20:30 น. - 21:00 น. (รันทุกๆ 5 นาที)
+    lao_trigger = CronTrigger(day_of_week="mon-fri", hour="20", minute="30-59/5")
+    lao_trigger_21 = CronTrigger(day_of_week="mon-fri", hour="21", minute="0")
     
     scheduler.add_job(
         run_lao_task,
         trigger=lao_trigger,
         id="lao_scheduled_job",
-        name="Scrape LAO Results on Mon/Wed/Fri (20:35-20:55)",
+        name="Scrape LAO Results on Mon-Fri (20:30-20:55)",
         replace_existing=True
     )
     scheduler.add_job(
         run_lao_task,
         trigger=lao_trigger_21,
         id="lao_scheduled_job_21",
-        name="Scrape LAO Results on Mon/Wed/Fri (21:00)",
+        name="Scrape LAO Results on Mon-Fri (21:00)",
         replace_existing=True
     )
-    logger.info("Added LAO cron jobs: Mon,Wed,Fri at 20:35-20:55 every 5 mins, and 21:00.")
+    logger.info("Added LAO cron jobs: Mon-Fri at 20:30-20:55 every 5 mins, and 21:00.")
 
     logger.info("Starting APScheduler...")
     scheduler.start()

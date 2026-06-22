@@ -57,3 +57,22 @@ INSERT INTO lottery_types (code, name, timezone) VALUES
 ('hanoi', 'หวยฮานอย', 'Asia/Ho_Chi_Minh'),
 ('yeekee', 'หวยยี่กี', 'Asia/Bangkok')
 ON CONFLICT (code) DO NOTHING;
+
+-- 4. ตารางเก็บประวัติคำทำนาย AI
+CREATE TABLE IF NOT EXISTS lottery_predictions (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    lottery_type_id UUID NOT NULL REFERENCES lottery_types(id) ON DELETE CASCADE,
+    draw_date DATE NOT NULL,
+    predictions_json JSONB NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT unique_type_pred_draw_date UNIQUE (lottery_type_id, draw_date)
+);
+
+CREATE TRIGGER update_lottery_predictions_updated_at
+    BEFORE UPDATE ON lottery_predictions
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+CREATE INDEX IF NOT EXISTS idx_lottery_predictions_type_date ON lottery_predictions(lottery_type_id, draw_date DESC);
+

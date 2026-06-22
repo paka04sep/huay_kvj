@@ -129,7 +129,7 @@ async def test_predictions_endpoint_success(mock_predict_next):
     assert data["latest_draw_date"] == "2026-06-16"
     assert data["next_draw_date"] == "2026-07-01" # 16th June -> 1st July
     assert "predictions" in data
-    assert data["predictions"]["last_2"][0]["number"] == "12"
+    assert data["predictions"]["two_down"][0]["number"] == "12"
     
     app.dependency_overrides.clear()
 

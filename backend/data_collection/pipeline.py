@@ -169,6 +169,8 @@ class DataPipeline:
                         normalized_data=normalized_data,
                         draw_date=validated_model.draw_date.isoformat()
                     )
+                    # คำนวณและบันทึกผลทำนายงวดถัดไปลงฐานข้อมูลประวัติ
+                    await self.save_predictions_for_next_draw(code, validated_model.draw_date.isoformat())
             
             return db_success
         except Exception as e:
@@ -200,6 +202,99 @@ class DataPipeline:
             except Exception as db_err:
                 logger.error(f"Could not write failure log to DB or send alert: {db_err}")
             return False
+
+    async def save_predictions_for_next_draw(self, code: str, current_draw_date: str):
+        """
+        คำนวณและบันทึกผลการทำนายล่วงหน้าสำหรับงวดถัดไปลงในตาราง lottery_predictions
+        """
+        try:
+            logger.info(f"Pipeline: Calculating predictions for next draw of {code.upper()}...")
+            # 1. หาวันงวดถัดไป
+            from backend.api.routes.predictions import calculate_next_draw_date
+            date_val = datetime.strptime(current_draw_date, "%Y-%m-%d").date()
+            next_draw = calculate_next_draw_date(code, date_val)
+            
+            # 2. คำนวณ Predictions (ใช้ EnsemblePredictor)
+            from backend.ml.ensemble_predictor import EnsemblePredictor
+            predictor = EnsemblePredictor(weight_lstm=0.6, weight_freq=0.4)
+            
+            raw_last_2 = await predictor.predict_next(code=code, target="last_2", top_k=100)
+            raw_last_3 = await predictor.predict_next(code=code, target="last_3", top_k=1000)
+            
+            p_last_2 = {item["number"]: item["probability"] for item in raw_last_2}
+            p_last_3 = {item["number"]: item["probability"] for item in raw_last_3}
+            
+            # --- 1. ทำนาย 3 ตัวบน (3-digit direct) ---
+            top_3_up = sorted(raw_last_3, key=lambda x: x["probability"], reverse=True)[:5]
+            predictions_3_up = [{"number": item["number"], "probability": item["probability"]} for item in top_3_up]
+            
+            # --- 2. ทำนาย 3 ตัวโต๊ด (3-digit Todd) ---
+            todd_probs = {}
+            for num_str, prob in p_last_3.items():
+                sorted_chars = "".join(sorted(list(num_str)))
+                todd_probs[sorted_chars] = todd_probs.get(sorted_chars, 0.0) + prob
+            top_todd = sorted(todd_probs.items(), key=lambda x: x[1], reverse=True)[:5]
+            predictions_todd = [{"number": num, "probability": prob} for num, prob in top_todd]
+            
+            # --- 3. ทำนาย 2 ตัวบน (2-digit top) ---
+            two_up_probs = {}
+            for num_str, prob in p_last_3.items():
+                two_digit_suffix = num_str[1:]
+                two_up_probs[two_digit_suffix] = two_up_probs.get(two_digit_suffix, 0.0) + prob
+            top_2_up = sorted(two_up_probs.items(), key=lambda x: x[1], reverse=True)[:5]
+            predictions_2_up = [{"number": num, "probability": prob} for num, prob in top_2_up]
+            
+            # --- 4. ทำนาย 2 ตัวล่าง (2-digit bottom) ---
+            top_2_down = sorted(raw_last_2, key=lambda x: x["probability"], reverse=True)[:5]
+            predictions_2_down = [{"number": item["number"], "probability": item["probability"]} for item in top_2_down]
+            
+            # --- 5. ทำนาย วิ่งบน (Run 3-up) ---
+            run_up_probs = {}
+            for d in range(10):
+                d_str = str(d)
+                prob_sum = 0.0
+                for num_str, prob in p_last_3.items():
+                    if d_str in num_str:
+                        prob_sum += prob
+                run_up_probs[d_str] = prob_sum
+            top_run_up = sorted(run_up_probs.items(), key=lambda x: x[1], reverse=True)[:3]
+            predictions_run_up = [{"number": num, "probability": prob} for num, prob in top_run_up]
+            
+            # --- 6. ทำนาย วิ่งล่าง (Run 2-down) ---
+            run_down_probs = {}
+            for d in range(10):
+                d_str = str(d)
+                prob_sum = 0.0
+                for num_str, prob in p_last_2.items():
+                    if d_str in num_str:
+                        prob_sum += prob
+                run_down_probs[d_str] = prob_sum
+            top_run_down = sorted(run_down_probs.items(), key=lambda x: x[1], reverse=True)[:3]
+            predictions_run_down = [{"number": num, "probability": prob} for num, prob in top_run_down]
+            
+            predictions_data = {
+                "three_up": predictions_3_up,
+                "three_todd": predictions_todd,
+                "two_up": predictions_2_up,
+                "two_down": predictions_2_down,
+                "run_up": predictions_run_up,
+                "run_down": predictions_run_down
+            }
+            
+            # 3. บันทึกคำทำนายลงตาราง lottery_predictions
+            lottery_type_id = await self.get_lottery_type_id(code)
+            query = """
+                INSERT INTO lottery_predictions (lottery_type_id, draw_date, predictions_json, updated_at)
+                VALUES ($1, $2, $3, CURRENT_TIMESTAMP)
+                ON CONFLICT (lottery_type_id, draw_date)
+                DO UPDATE SET
+                    predictions_json = EXCLUDED.predictions_json,
+                    updated_at = CURRENT_TIMESTAMP;
+            """
+            await self.db_conn.execute(query, lottery_type_id, next_draw, json.dumps(predictions_data))
+            logger.info(f"Pipeline: Saved next draw predictions for {code.upper()} on date {next_draw} successfully.")
+        except Exception as e:
+            logger.error(f"Pipeline: Failed to calculate and save predictions: {e}")
 
     async def run_historical_pipeline(self, code: str, years: int = 5, limit: int = None):
         """

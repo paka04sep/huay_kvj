@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 import asyncpg
+import json
 from typing import Dict, Any, List
 from datetime import date, datetime, timedelta
 
@@ -25,10 +26,9 @@ def calculate_next_draw_date(code: str, latest_date: date) -> date:
             return date(latest_date.year, latest_date.month, 16)
             
     elif code == "lao":
-        # หวยลาวออก จันทร์, พุธ, ศุกร์
-        # หาว่าวันถัดไปคือวันอะไร
+        # หวยลาวออก จันทร์ - ศุกร์
         curr = latest_date + timedelta(days=1)
-        while curr.weekday() not in (0, 2, 4): # 0=Mon, 2=Wed, 4=Fri
+        while curr.weekday() not in (0, 1, 2, 3, 4): # 0=Mon, 1=Tue, 2=Wed, 3=Thu, 4=Fri
             curr += timedelta(days=1)
         return curr
         
@@ -160,4 +160,64 @@ async def get_predictions(
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error running prediction engine: {e}")
+
+@router.get("/history")
+async def get_predictions_history(
+    type: str = Query(..., description="ประเภทหวย: glo, lao"),
+    page: int = Query(1, ge=1),
+    limit: int = Query(10, ge=1, le=50),
+    db: asyncpg.Connection = Depends(get_db)
+):
+    """
+    ดึงประวัติการทำนายปัญญาประดิษฐ์ย้อนหลังเปรียบเทียบกับผลรางวัลจริง
+    """
+    type_row = await db.fetchrow("SELECT id FROM lottery_types WHERE code = $1", type)
+    if not type_row:
+        raise HTTPException(status_code=400, detail=f"Unsupported lottery type '{type}'")
+    
+    type_id = type_row["id"]
+    offset = (page - 1) * limit
+    
+    total_count = await db.fetchval("""
+        SELECT COUNT(*) FROM lottery_predictions 
+        WHERE lottery_type_id = $1
+    """, type_id)
+    
+    query = """
+        SELECT 
+            p.draw_date,
+            p.predictions_json,
+            r.result_json,
+            r.draw_number
+        FROM lottery_predictions p
+        LEFT JOIN lottery_results r ON p.lottery_type_id = r.lottery_type_id AND p.draw_date = r.draw_date
+        WHERE p.lottery_type_id = $1
+        ORDER BY p.draw_date DESC
+        LIMIT $2 OFFSET $3
+    """
+    rows = await db.fetch(query, type_id, limit, offset)
+    
+    results = []
+    for row in rows:
+        pred_data = json.loads(row["predictions_json"])
+        result_data = json.loads(row["result_json"]) if row["result_json"] else None
+        
+        results.append({
+            "draw_date": row["draw_date"].isoformat(),
+            "draw_number": row["draw_number"],
+            "predictions": pred_data,
+            "actual_result": result_data
+        })
+        
+    total_pages = (total_count + limit - 1) // limit if total_count > 0 else 0
+    
+    return {
+        "lottery_type": type,
+        "page": page,
+        "limit": limit,
+        "total_count": total_count,
+        "total_pages": total_pages,
+        "results": results
+    }
+
 
