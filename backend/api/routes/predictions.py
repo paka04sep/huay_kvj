@@ -6,6 +6,7 @@ from datetime import date, datetime, timedelta
 
 from backend.api.database import get_db
 from backend.ml.ensemble_predictor import EnsemblePredictor
+from backend.api.cache import get_redis
 
 router = APIRouter(prefix="/predictions", tags=["predictions"])
 
@@ -37,11 +38,21 @@ def calculate_next_draw_date(code: str, latest_date: date) -> date:
 @router.get("")
 async def get_predictions(
     type: str = Query(..., description="ประเภทหวย: glo, lao"),
-    db: asyncpg.Connection = Depends(get_db)
+    db: asyncpg.Connection = Depends(get_db),
+    redis = Depends(get_redis)
 ):
     """
     ทำนายผลเลขเด่นสำหรับงวดถัดไป โดยแบ่งออกเป็นหลายประเภทรางวัลเชิงลึก
     """
+    # 0. ตรวจสอบความถูกต้องของ Cache ใน Redis
+    cache_key = f"lottery:predictions:{type}"
+    try:
+        cached = await redis.get(cache_key)
+        if cached:
+            return json.loads(cached)
+    except Exception:
+        pass
+
     # 1. ตรวจสอบความถูกต้องของประเภทหวย
     type_row = await db.fetchrow("SELECT id FROM lottery_types WHERE code = $1", type)
     if not type_row:
@@ -145,7 +156,7 @@ async def get_predictions(
             for num, prob in top_run_down
         ]
         
-        return {
+        response_data = {
             "lottery_type": type,
             "latest_draw_date": latest_date_row.isoformat(),
             "next_draw_date": next_draw_date.isoformat(),
@@ -158,6 +169,14 @@ async def get_predictions(
                 "run_down": predictions_run_down
             }
         }
+
+        # บันทึกผลลง Redis Cache (มีอายุ 12 ชั่วโมง)
+        try:
+            await redis.set(cache_key, json.dumps(response_data), ex=43200)
+        except Exception:
+            pass
+
+        return response_data
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error running prediction engine: {e}")
 

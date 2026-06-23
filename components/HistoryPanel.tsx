@@ -60,10 +60,16 @@ export default function HistoryPanel({ type }: HistoryPanelProps) {
   const [activeTab, setActiveTab] = useState<"results" | "predictions">("results");
   const [page, setPage] = useState<number>(1);
   const [limit] = useState<number>(10);
-  const [resultsData, setResultsData] = useState<HistoryResponse | null>(null);
-  const [predictionsData, setPredictionsData] = useState<PredictionsHistoryResponse | null>(null);
+  
+  // Cache to store history pages locally
+  const [historyCache, setHistoryCache] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  const cacheKey = `${type}-${activeTab}-${page}-${limit}`;
+  const cachedPageData = historyCache[cacheKey];
+  const resultsData = activeTab === "results" ? cachedPageData : null;
+  const predictionsData = activeTab === "predictions" ? cachedPageData : null;
 
   // Reset page when switching types or tabs
   useEffect(() => {
@@ -72,7 +78,12 @@ export default function HistoryPanel({ type }: HistoryPanelProps) {
 
   useEffect(() => {
     async function fetchData() {
-      setLoading(true);
+      const targetCacheKey = `${type}-${activeTab}-${page}-${limit}`;
+      const hasCache = historyCache[targetCacheKey] !== undefined;
+
+      if (!hasCache) {
+        setLoading(true);
+      }
       setError(null);
       try {
         if (activeTab === "results") {
@@ -83,7 +94,7 @@ export default function HistoryPanel({ type }: HistoryPanelProps) {
             throw new Error(`API returned status ${res.status}`);
           }
           const json = await res.json();
-          setResultsData(json);
+          setHistoryCache(prev => ({ ...prev, [targetCacheKey]: json }));
         } else {
           const res = await fetch(
             getApiUrl(`/api/predictions/history?type=${type}&page=${page}&limit=${limit}`)
@@ -92,15 +103,18 @@ export default function HistoryPanel({ type }: HistoryPanelProps) {
             throw new Error(`API returned status ${res.status}`);
           }
           const json = await res.json();
-          setPredictionsData(json);
+          setHistoryCache(prev => ({ ...prev, [targetCacheKey]: json }));
         }
       } catch (err: any) {
-        setError(err.message || `Failed to load ${activeTab === "results" ? "lottery history" : "AI prediction history"}`);
+        if (!hasCache) {
+          setError(err.message || `Failed to load ${activeTab === "results" ? "lottery history" : "AI prediction history"}`);
+        }
       } finally {
         setLoading(false);
       }
     }
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [type, page, limit, activeTab]);
 
   const formatDate = (dateStr: string) => {

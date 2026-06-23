@@ -5,6 +5,7 @@ from collections import Counter
 from typing import Dict, Any, List, Optional
 
 from backend.api.database import get_db
+from backend.api.cache import get_redis
 
 router = APIRouter(prefix="/stats", tags=["statistics"])
 
@@ -14,11 +15,20 @@ async def get_hot_cold_stats(
     limit_draws: int = Query(100, ge=10, le=1000, description="จำนวนงวดล่าสุดที่ต้องการวิเคราะห์"),
     position: str = Query("last_2", description="ตำแหน่งเลข: first_prize, last_2, last_3, first_3 (สำหรับ glo) หรือ digits_4, digits_3, digits_2 (สำหรับ lao)"),
     stat_type: str = Query("numbers", description="ประเภทสถิติ: numbers (เลขชุดเต็มเช่น 00-99) หรือ digits (ความถี่เลขเดี่ยว 0-9)"),
-    db: asyncpg.Connection = Depends(get_db)
+    db: asyncpg.Connection = Depends(get_db),
+    redis = Depends(get_redis)
 ):
     """
     วิเคราะห์เลขร้อน/เย็น (Hot/Cold Numbers), สรุปสถิติ คู่/คี่, สูง/ต่ำ
     """
+    # 0. ตรวจสอบความถูกต้องของ Cache ใน Redis
+    cache_key = f"lottery:stats:{type}:{limit_draws}:{position}:{stat_type}"
+    try:
+        cached = await redis.get(cache_key)
+        if cached:
+            return json.loads(cached)
+    except Exception:
+        pass
     # 1. ตรวจสอบประเภทหวย
     type_row = await db.fetchrow("SELECT id FROM lottery_types WHERE code = $1", type)
     if not type_row:
@@ -164,7 +174,7 @@ async def get_hot_cold_stats(
     hot_numbers = [{"number": num, "count": cnt} for num, cnt in sorted_freqs[:10]]
     cold_numbers = [{"number": num, "count": cnt} for num, cnt in sorted_freqs[-10:]]
 
-    return {
+    response_data = {
         "lottery_type": type,
         "position": position,
         "stat_type": stat_type,
@@ -187,3 +197,11 @@ async def get_hot_cold_stats(
         },
         "all_frequencies": full_frequencies
     }
+
+    # บันทึกผลลง Redis Cache (มีอายุ 12 ชั่วโมง)
+    try:
+        await redis.set(cache_key, json.dumps(response_data), ex=43200)
+    except Exception:
+        pass
+
+    return response_data

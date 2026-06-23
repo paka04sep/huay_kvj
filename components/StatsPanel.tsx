@@ -53,8 +53,8 @@ export default function StatsPanel({ type }: StatsPanelProps) {
   const [position, setPosition] = useState<string>(type === "glo" ? "last_2" : "digits_2");
   const [statType, setStatType] = useState<string>("numbers");
 
-  // API states
-  const [data, setData] = useState<StatsData | null>(null);
+  // Local cache for statistics configurations
+  const [statsCache, setStatsCache] = useState<Record<string, StatsData | null>>({});
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -62,6 +62,17 @@ export default function StatsPanel({ type }: StatsPanelProps) {
   useEffect(() => {
     setPosition(type === "glo" ? "last_2" : "digits_2");
   }, [type]);
+
+  const activePositionKey = (() => {
+    const isGloPos = ["first_prize", "last_2", "last_3", "first_3"].includes(position);
+    const isLaoPos = ["digits_4", "digits_3", "digits_2"].includes(position);
+    if (type === "glo" && !isGloPos) return "last_2";
+    if (type === "lao" && !isLaoPos) return "digits_2";
+    return position;
+  })();
+
+  const currentCacheKey = `${type}-${limitDraws}-${activePositionKey}-${statType}`;
+  const data = statsCache[currentCacheKey] || null;
 
   // Fetch stats when filters or type change
   useEffect(() => {
@@ -77,7 +88,12 @@ export default function StatsPanel({ type }: StatsPanelProps) {
         fetchPosition = "digits_2";
       }
 
-      setLoading(true);
+      const targetCacheKey = `${type}-${limitDraws}-${fetchPosition}-${statType}`;
+      const hasCache = statsCache[targetCacheKey] !== undefined;
+
+      if (!hasCache) {
+        setLoading(true);
+      }
       setError(null);
       try {
         const res = await fetch(
@@ -87,14 +103,17 @@ export default function StatsPanel({ type }: StatsPanelProps) {
           throw new Error(`API returned status ${res.status}`);
         }
         const json = await res.json();
-        setData(json);
+        setStatsCache(prev => ({ ...prev, [targetCacheKey]: json }));
       } catch (err: any) {
-        setError(err.message || "Failed to load statistics");
+        if (!hasCache) {
+          setError(err.message || "Failed to load statistics");
+        }
       } finally {
         setLoading(false);
       }
     }
     fetchStats();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [type, limitDraws, position, statType]);
 
   const handlePositionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {

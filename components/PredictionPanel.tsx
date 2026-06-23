@@ -28,13 +28,22 @@ interface PredictionData {
 }
 
 export default function PredictionPanel({ type }: PredictionPanelProps) {
-  const [data, setData] = useState<PredictionData | null>(null);
+  // Local cache for predictions per type
+  const [predictionsCache, setPredictionsCache] = useState<Record<"glo" | "lao", PredictionData | null>>({
+    glo: null,
+    lao: null,
+  });
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  const data = predictionsCache[type];
+
   useEffect(() => {
     async function fetchPredictions() {
-      setLoading(true);
+      const hasCache = predictionsCache[type] !== null;
+      if (!hasCache) {
+        setLoading(true);
+      }
       setError(null);
       try {
         const res = await fetch(getApiUrl(`/api/predictions?type=${type}`));
@@ -42,14 +51,17 @@ export default function PredictionPanel({ type }: PredictionPanelProps) {
           throw new Error(`API returned status ${res.status}`);
         }
         const json = await res.json();
-        setData(json);
+        setPredictionsCache(prev => ({ ...prev, [type]: json }));
       } catch (err: any) {
-        setError(err.message || "Failed to load predictions from AI engine");
+        if (!hasCache) {
+          setError(err.message || "Failed to load predictions from AI engine");
+        }
       } finally {
         setLoading(false);
       }
     }
     fetchPredictions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [type]);
 
   const toPercentage = (val: number) => {

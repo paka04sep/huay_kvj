@@ -17,7 +17,10 @@ async def get_latest_result_by_code(db: asyncpg.Connection, redis_client, code: 
     try:
         cached = await redis_client.get(cache_key)
         if cached:
-            return json.loads(cached)
+            data = json.loads(cached)
+            # ตรวจสอบว่ามีข้อมูลครบถ้วนหรือไม่ หากมีข้อมูลครบให้ใช้งานได้เลย
+            if all(k in data for k in ["lottery_type", "draw_number", "primary", "secondary"]):
+                return data
     except Exception as e:
         # หาก Redis มีปัญหายังทำงานต่อได้จาก DB
         pass
@@ -58,14 +61,8 @@ async def get_latest_result_by_code(db: asyncpg.Connection, redis_client, code: 
 
     # บันทึกลง Redis Cache (มีอายุ 24 ชั่วโมง)
     try:
-        # บันทึกรูปแบบเดียวกับตัว pipeline
-        cache_value = {
-            "draw_date": draw_date_str,
-            "primary": result_data.get("primary"),
-            "secondary": result_data.get("secondary", {}),
-            "updated_at": datetime.now(timezone.utc).isoformat()
-        }
-        await redis_client.set(cache_key, json.dumps(cache_value), ex=86400)
+        # บันทึกรูปแบบเต็มของ response_data เพื่อให้การอ่านครั้งต่อไปดึงฟิลด์ได้ครบถ้วน
+        await redis_client.set(cache_key, json.dumps(response_data), ex=86400)
     except Exception:
         pass
 

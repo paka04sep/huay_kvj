@@ -29,23 +29,39 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<string>("results");
   const [activeType, setActiveType] = useState<"glo" | "lao">("glo");
   
-  // Latest result state
-  const [latestData, setLatestData] = useState<LatestResult | null>(null);
+  // Latest result state per type
+  const [latestDataMap, setLatestDataMap] = useState<Record<"glo" | "lao", LatestResult | null>>({
+    glo: null,
+    lao: null,
+  });
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
 
-  // Next draw date countdown state
-  const [nextDrawDate, setNextDrawDate] = useState<string | null>(null);
+  // Track visited tabs for lazy loading
+  const [visitedTabs, setVisitedTabs] = useState<Record<string, boolean>>({
+    results: true,
+  });
+
+  // Next draw date countdown state per type
+  const [nextDrawDateMap, setNextDrawDateMap] = useState<Record<"glo" | "lao", string | null>>({
+    glo: null,
+    lao: null,
+  });
   const [timeLeft, setTimeLeft] = useState<TimeLeft | null>(null);
+
+  const latestData = latestDataMap[activeType];
+  const nextDrawDate = nextDrawDateMap[activeType];
 
   // Fetch latest draw results and predictions (for next_draw_date)
   useEffect(() => {
     async function fetchData() {
-      setLoading(true);
+      const hasCache = latestDataMap[activeType] !== null;
+      if (!hasCache) {
+        setLoading(true);
+        setTimeLeft(null);
+      }
       setError(null);
-      setNextDrawDate(null);
-      setTimeLeft(null);
       try {
         // 1. Fetch Latest Results
         const res = await fetch(getApiUrl(`/api/results/latest?type=${activeType}`));
@@ -53,23 +69,26 @@ export default function Home() {
           throw new Error(`API returned status ${res.status}`);
         }
         const json = await res.json();
-        setLatestData(json);
+        setLatestDataMap(prev => ({ ...prev, [activeType]: json }));
 
         // 2. Fetch predictions in background to get next draw date
         const predRes = await fetch(getApiUrl(`/api/predictions?type=${activeType}`));
         if (predRes.ok) {
           const predJson = await predRes.json();
           if (predJson.next_draw_date) {
-            setNextDrawDate(predJson.next_draw_date);
+            setNextDrawDateMap(prev => ({ ...prev, [activeType]: predJson.next_draw_date }));
           }
         }
       } catch (err: any) {
-        setError(err.message || "Failed to load latest results");
+        if (!hasCache) {
+          setError(err.message || "Failed to load latest results");
+        }
       } finally {
         setLoading(false);
       }
     }
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeType]);
 
   // Countdown timer logic
@@ -103,6 +122,7 @@ export default function Home() {
   // Handle smooth tab transitions
   const handleTabChange = (tabId: string) => {
     setIsTransitioning(true);
+    setVisitedTabs((prev) => ({ ...prev, [tabId]: true }));
     setTimeout(() => {
       setActiveTab(tabId);
       setIsTransitioning(false);
@@ -138,8 +158,7 @@ export default function Home() {
           {/* Transition wrapper */}
           <div className={`transition-all duration-200 ${isTransitioning ? "opacity-0 translate-y-2 scale-98" : "opacity-100 translate-y-0 scale-100"}`}>
             
-            {activeTab === "results" && (
-              <div className="space-y-4">
+            <div className={activeTab === "results" ? "space-y-4" : "hidden"}>
                 
                 {/* Clean, Non-intrusive Countdown Timer above the LottoCard */}
                 {nextDrawDate && timeLeft && (
@@ -173,19 +192,24 @@ export default function Home() {
                   loading={loading}
                   error={error}
                 />
+            </div>
+
+            {visitedTabs.stats && (
+              <div className={activeTab === "stats" ? "" : "hidden"}>
+                <StatsPanel type={activeType} />
               </div>
             )}
 
-            {activeTab === "stats" && (
-              <StatsPanel type={activeType} />
+            {visitedTabs.predictions && (
+              <div className={activeTab === "predictions" ? "" : "hidden"}>
+                <PredictionPanel type={activeType} />
+              </div>
             )}
 
-            {activeTab === "predictions" && (
-              <PredictionPanel type={activeType} />
-            )}
-
-            {activeTab === "history" && (
-              <HistoryPanel type={activeType} />
+            {visitedTabs.history && (
+              <div className={activeTab === "history" ? "" : "hidden"}>
+                <HistoryPanel type={activeType} />
+              </div>
             )} 
           </div>
 
