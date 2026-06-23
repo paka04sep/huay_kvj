@@ -13,6 +13,9 @@ from backend.ml.frequency_predictor import FrequencyPredictor
 
 MODELS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "models"))
 
+# แคชเก็บโมเดลที่โหลดแล้วในหน่วยความจำ เพื่อป้องกันการอ่านไฟล์จากฮาร์ดดิสก์ใหม่ทุกครั้ง
+_MODEL_CACHE = {}
+
 class EnsemblePredictor:
     """
     ประสานการทำงานระหว่าง LSTM Model และ Frequency Predictor (สถิติความถี่สะสม)
@@ -55,9 +58,14 @@ class EnsemblePredictor:
         lstm_probs = {}
         if os.path.exists(model_path):
             try:
-                model = LottoLSTM(num_classes=num_classes)
-                model.load_state_dict(torch.load(model_path, map_location=torch.device("cpu")))
-                model.eval()
+                # ดึงโมเดลจาก Cache ในแรมเพื่อความรวดเร็ว
+                if model_path in _MODEL_CACHE:
+                    model = _MODEL_CACHE[model_path]
+                else:
+                    model = LottoLSTM(num_classes=num_classes)
+                    model.load_state_dict(torch.load(model_path, map_location=torch.device("cpu")))
+                    model.eval()
+                    _MODEL_CACHE[model_path] = model
                 
                 with torch.no_grad():
                     logits = model(input_tensor)
