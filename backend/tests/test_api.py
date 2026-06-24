@@ -133,3 +133,38 @@ async def test_predictions_endpoint_success(mock_predict_next):
     
     app.dependency_overrides.clear()
 
+
+# 7. ทดสอบ trigger_scrape endpoint ประสบผลสำเร็จ
+@patch("backend.data_collection.pipeline.DataPipeline")
+@patch("backend.data_collection.scrapers.lao_scraper.LaoScraper")
+async def test_trigger_scrape_success(mock_lao_scraper, mock_pipeline_class):
+    mock_pipeline = MagicMock()
+    mock_pipeline.initialize = AsyncMock()
+    mock_pipeline.close = AsyncMock()
+    mock_pipeline.run_single_draw_pipeline = AsyncMock(return_value=True)
+    mock_pipeline.db_conn = MagicMock()
+    mock_pipeline.db_conn.fetchrow = AsyncMock(return_value={
+        "draw_number": "12",
+        "status": "active",
+        "source_url": "http://test.com",
+        "result_json": '{"primary": "123456", "secondary": {"last_2": "56"}}'
+    })
+    
+    mock_pipeline_class.return_value = mock_pipeline
+    
+    mock_scraper = MagicMock()
+    mock_scraper.fetch_latest = AsyncMock(return_value={"draw_date": "2026-06-24"})
+    mock_lao_scraper.return_value = mock_scraper
+    
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        resp = await ac.post("/api/results/scrape?type=lao")
+        
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["status"] == "success"
+    assert data["draw_date"] == "2026-06-24"
+    assert data["pipeline_success"] is True
+    assert data["result"]["draw_number"] == "12"
+
+

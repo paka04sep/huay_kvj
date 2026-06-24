@@ -128,6 +128,19 @@ class DataPipeline:
         """
         รัน Pipeline ดึงข้อมูลเพียงหนึ่งงวด
         """
+        try:
+            lottery_type_id = await self.get_lottery_type_id(code)
+            date_val = datetime.strptime(draw_date, "%Y-%m-%d").date()
+            existing = await self.db_conn.fetchrow(
+                "SELECT id FROM lottery_results WHERE lottery_type_id = $1 AND draw_date = $2 AND status = 'active'",
+                lottery_type_id, date_val
+            )
+            if existing:
+                logger.info(f"Draw {draw_date} for {code.upper()} is already in database and active. Skipping pipeline.")
+                return True
+        except Exception as check_err:
+            logger.warning(f"Failed to check existing active record in DB: {check_err}. Proceeding with pipeline.")
+
         if code == "glo":
             scraper = GLOScraper()
         elif code == "lao":

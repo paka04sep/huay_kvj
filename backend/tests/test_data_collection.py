@@ -86,3 +86,24 @@ def test_lao_normalizer():
     assert normalized["primary"] == "4567"
     assert normalized["secondary"]["digits_3"] == "567"
     assert normalized["secondary"]["digits_2"] == "67"
+
+from unittest.mock import AsyncMock, MagicMock
+from backend.data_collection.pipeline import DataPipeline
+
+@pytest.mark.anyio
+async def test_pipeline_skips_when_draw_active_in_db():
+    pipeline = DataPipeline()
+    # Mock connections
+    pipeline.db_conn = MagicMock()
+    pipeline.db_conn.fetchrow = AsyncMock(return_value={"id": "already-exists"})
+    
+    # Mock helper method
+    pipeline.get_lottery_type_id = AsyncMock(return_value="some-uuid")
+    
+    # Call single draw pipeline
+    res = await pipeline.run_single_draw_pipeline("lao", "2026-06-24")
+    
+    # It should return True and skip scraping/re-saving
+    assert res is True
+    # Verify it queried the database to check for existence
+    pipeline.db_conn.fetchrow.assert_called_once()

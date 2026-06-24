@@ -172,3 +172,73 @@ async def get_history_results(
         "total_pages": total_pages,
         "results": results
     }
+
+@router.post("/scrape")
+async def trigger_scrape(
+    type: str = Query(..., description="ประเภทหวยที่ต้องการดึง: glo, lao"),
+    draw_date: Optional[str] = Query(None, description="วันที่ของงวด (YYYY-MM-DD) หากไม่ใส่จะดึงงวดล่าสุด")
+):
+    """
+    บังคับรันสแครปเปอร์เพื่ออัปเดตข้อมูลผลหวยเข้าระบบทันที (Manual Trigger)
+    """
+    if type not in ["glo", "lao"]:
+        raise HTTPException(status_code=400, detail="Unsupported lottery type. Choose 'glo' or 'lao'.")
+        
+    from backend.data_collection.pipeline import DataPipeline
+    from backend.data_collection.scrapers.glo_scraper import GLOScraper
+    from backend.data_collection.scrapers.lao_scraper import LaoScraper
+    
+    pipeline = DataPipeline()
+    await pipeline.initialize()
+    
+    try:
+        if draw_date:
+            # ตรวจสอบรูปแบบวันที่เบื้องต้น
+            try:
+                datetime.strptime(draw_date, "%Y-%m-%d")
+            except ValueError:
+                raise HTTPException(status_code=400, detail="Invalid draw_date format. Must be YYYY-MM-DD.")
+        else:
+            # ดึงงวดล่าสุดจาก scraper
+            if type == "glo":
+                scraper = GLOScraper()
+            else:
+                scraper = LaoScraper()
+            
+            latest = await scraper.fetch_latest()
+            draw_date = latest["draw_date"]
+            
+        # รัน pipeline
+        success = await pipeline.run_single_draw_pipeline(type, draw_date)
+        
+        # ค้นหาผลลัพธ์ใน DB อีกครั้งเพื่อส่งคืนให้ผู้ใช้เห็น
+        row = await pipeline.db_conn.fetchrow("""
+            SELECT r.draw_number, r.result_json, r.status, r.source_url
+            FROM lottery_results r
+            JOIN lottery_types t ON r.lottery_type_id = t.id
+            WHERE t.code = $1 AND r.draw_date = $2
+        """, type, datetime.strptime(draw_date, "%Y-%m-%d").date())
+        
+        result_details = {}
+        if row:
+            result_details = {
+                "draw_number": row["draw_number"],
+                "status": row["status"],
+                "source_url": row["source_url"],
+                "data": json.loads(row["result_json"])
+            }
+            
+        return {
+            "status": "success",
+            "message": f"Scraped and processed {type.upper()} for date {draw_date} successfully.",
+            "draw_date": draw_date,
+            "pipeline_success": success,
+            "result": result_details
+        }
+        
+    except Exception as e:
+        import logging
+        logging.getLogger("api.results").error(f"Manual scrape failed: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Failed to scrape: {str(e)}")
+    finally:
+        await pipeline.close()

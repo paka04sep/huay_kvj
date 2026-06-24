@@ -82,37 +82,54 @@ async def main():
     scheduler = AsyncIOScheduler()
 
     # 1. หวยรัฐบาลไทย (GLO)
-    # ออกทุกวันที่ 1 และ 16 ของเดือน ในช่วงเวลา 15:00 น. - 16:00 น. (รันทุกๆ 10 นาที)
-    glo_trigger = CronTrigger(day="1,16", hour="15", minute="*/10")
+    # ออกทุกวันที่ 1 และ 16 ของเดือน ในช่วงเวลา 15:00 น. - 18:00 น. เพื่อรองรับการอัปเดตช้า
     scheduler.add_job(
         run_glo_task,
-        trigger=glo_trigger,
-        id="glo_scheduled_job",
-        name="Scrape GLO Results on 1st & 16th",
+        trigger=CronTrigger(day="1,16", hour="15", minute="*/10"),
+        id="glo_scheduled_job_15",
+        name="Scrape GLO Results (15:00-15:50 every 10 mins)",
         replace_existing=True
     )
-    logger.info("Added GLO cron job: 1st/16th of month at 15:00-15:50 every 10 mins.")
+    scheduler.add_job(
+        run_glo_task,
+        trigger=CronTrigger(day="1,16", hour="16", minute="*/20"),
+        id="glo_scheduled_job_16",
+        name="Scrape GLO Results (16:00-16:40 every 20 mins)",
+        replace_existing=True
+    )
+    scheduler.add_job(
+        run_glo_task,
+        trigger=CronTrigger(day="1,16", hour="17", minute="0,30"),
+        id="glo_scheduled_job_17",
+        name="Scrape GLO Results (17:00, 17:30)",
+        replace_existing=True
+    )
+    logger.info("Added GLO cron jobs: 1st/16th of month from 15:00 to 17:30.")
 
     # 2. หวยลาว (LAO)
-    # ออกทุกวัน จันทร์ - ศุกร์ ช่วงเวลา 20:30 น. - 21:00 น. (รันทุกๆ 5 นาที)
-    lao_trigger = CronTrigger(day_of_week="mon-fri", hour="20", minute="30-59/5")
-    lao_trigger_21 = CronTrigger(day_of_week="mon-fri", hour="21", minute="0")
-    
+    # ออกทุกวัน จันทร์ - ศุกร์ ช่วงเวลา 20:30 น. - 23:59 น. เพื่อรองรับการอัปเดตช้า
     scheduler.add_job(
         run_lao_task,
-        trigger=lao_trigger,
-        id="lao_scheduled_job",
-        name="Scrape LAO Results on Mon-Fri (20:30-20:55)",
+        trigger=CronTrigger(day_of_week="mon-fri", hour="20", minute="30-59/5"),
+        id="lao_scheduled_job_20",
+        name="Scrape LAO Results (20:30-20:55 every 5 mins)",
         replace_existing=True
     )
     scheduler.add_job(
         run_lao_task,
-        trigger=lao_trigger_21,
+        trigger=CronTrigger(day_of_week="mon-fri", hour="21", minute="*/15"),
         id="lao_scheduled_job_21",
-        name="Scrape LAO Results on Mon-Fri (21:00)",
+        name="Scrape LAO Results (21:00-21:45 every 15 mins)",
         replace_existing=True
     )
-    logger.info("Added LAO cron jobs: Mon-Fri at 20:30-20:55 every 5 mins, and 21:00.")
+    scheduler.add_job(
+        run_lao_task,
+        trigger=CronTrigger(day_of_week="mon-fri", hour="22,23", minute="*/30"),
+        id="lao_scheduled_job_22_23",
+        name="Scrape LAO Results (22:00-23:30 every 30 mins)",
+        replace_existing=True
+    )
+    logger.info("Added LAO cron jobs: Mon-Fri from 20:30 to 23:30.")
 
     logger.info("Starting APScheduler...")
     scheduler.start()

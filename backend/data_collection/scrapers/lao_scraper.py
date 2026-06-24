@@ -122,9 +122,143 @@ class LaoScraper(BaseScraper):
             logger.error(f"Error extracting Lao lotto from cache: {e}")
         return None
 
-    async def fetch(self, draw_date: str) -> Dict[str, Any]:
+    async def _fetch_latest_mthai(self) -> Optional[Dict[str, Any]]:
         """
-        ดึงข้อมูลตามวันที่ (draw_date ในฟอร์แมต YYYY-MM-DD)
+        ดึงผลหวยลาวงวดล่าสุดจาก MThai
+        """
+        url = "https://lotto.mthai.com/lao"
+        logger.info(f"Trying to fetch latest Lao lottery from MThai: {url}")
+        
+        async with httpx.AsyncClient(headers=self.headers, verify=False, timeout=10) as client:
+            try:
+                resp = await client.get(url)
+                if resp.status_code != 200:
+                    return None
+                
+                html = resp.content.decode('utf-8', errors='replace')
+                soup = BeautifulSoup(html, 'html.parser')
+                articles = soup.find_all('article')
+                
+                for article in articles[:5]:
+                    title_tag = article.find('h2') or article.find('h3') or article.find('a')
+                    title_text = title_tag.text.strip() if title_tag else ""
+                    
+                    if "หวยลาว" not in title_text:
+                        continue
+                        
+                    draw_date = self._parse_thai_date(title_text)
+                    if not draw_date:
+                        continue
+                        
+                    content_text = article.text
+                    match_6d = re.search(r"เลข\s*6\s*ตัว\s*(\d{6})", content_text)
+                    match_5d = re.search(r"เลข\s*5\s*ตัว\s*(\d{5})", content_text)
+                    match_4d = re.search(r"เลข\s*4\s*ตัว\s*(\d{4})", content_text)
+                    
+                    digits_4 = None
+                    if match_4d:
+                        digits_4 = match_4d.group(1)
+                    elif match_5d:
+                        digits_4 = match_5d.group(1)[-4:]
+                    elif match_6d:
+                        digits_4 = match_6d.group(1)[-4:]
+                        
+                    if not digits_4:
+                        nums = re.findall(r"\d{4,6}", content_text)
+                        for n in nums:
+                            if len(n) == 6:
+                                digits_4 = n[-4:]
+                                break
+                            elif len(n) == 4:
+                                digits_4 = n
+                                break
+                                
+                    if digits_4:
+                        detail_url = title_tag.get('href') if title_tag and title_tag.name == 'a' else url
+                        return {
+                            "lottery_type": "lao",
+                            "draw_date": draw_date,
+                            "draw_number": None,
+                            "numbers": {
+                                "digits_4": digits_4
+                            },
+                            "source_url": detail_url,
+                            "fetched_at": datetime.now(timezone.utc)
+                        }
+            except Exception as e:
+                logger.error(f"Error fetching from MThai: {e}")
+        return None
+
+    async def _fetch_date_mthai(self, draw_date: str) -> Optional[Dict[str, Any]]:
+        """
+        ดึงผลหวยลาวตามวันที่จากหน้าแรก MThai (หากยังไม่ตกรอบหน้าแรก)
+        """
+        url = "https://lotto.mthai.com/lao"
+        logger.info(f"Searching for Lao lottery date {draw_date} on MThai: {url}")
+        
+        async with httpx.AsyncClient(headers=self.headers, verify=False, timeout=10) as client:
+            try:
+                resp = await client.get(url)
+                if resp.status_code != 200:
+                    return None
+                
+                html = resp.content.decode('utf-8', errors='replace')
+                soup = BeautifulSoup(html, 'html.parser')
+                articles = soup.find_all('article')
+                
+                for article in articles[:10]:
+                    title_tag = article.find('h2') or article.find('h3') or article.find('a')
+                    title_text = title_tag.text.strip() if title_tag else ""
+                    
+                    if "หวยลาว" not in title_text:
+                        continue
+                        
+                    candidate_date = self._parse_thai_date(title_text)
+                    if candidate_date != draw_date:
+                        continue
+                        
+                    content_text = article.text
+                    match_6d = re.search(r"เลข\s*6\s*ตัว\s*(\d{6})", content_text)
+                    match_5d = re.search(r"เลข\s*5\s*ตัว\s*(\d{5})", content_text)
+                    match_4d = re.search(r"เลข\s*4\s*ตัว\s*(\d{4})", content_text)
+                    
+                    digits_4 = None
+                    if match_4d:
+                        digits_4 = match_4d.group(1)
+                    elif match_5d:
+                        digits_4 = match_5d.group(1)[-4:]
+                    elif match_6d:
+                        digits_4 = match_6d.group(1)[-4:]
+                        
+                    if not digits_4:
+                        nums = re.findall(r"\d{4,6}", content_text)
+                        for n in nums:
+                            if len(n) == 6:
+                                digits_4 = n[-4:]
+                                break
+                            elif len(n) == 4:
+                                digits_4 = n
+                                break
+                                
+                    if digits_4:
+                        detail_url = title_tag.get('href') if title_tag and title_tag.name == 'a' else url
+                        return {
+                            "lottery_type": "lao",
+                            "draw_date": draw_date,
+                            "draw_number": None,
+                            "numbers": {
+                                "digits_4": digits_4
+                            },
+                            "source_url": detail_url,
+                            "fetched_at": datetime.now(timezone.utc)
+                        }
+            except Exception as e:
+                logger.error(f"Error searching date {draw_date} on MThai: {e}")
+        return None
+
+    async def _fetch_sanook(self, draw_date: str) -> Dict[str, Any]:
+        """
+        ดึงข้อมูลผลหวยลาวจาก Sanook ตามวันที่เจาะจง (ฟังก์ชันเดิมที่ดึงผ่าน URL date_slug)
         """
         date_obj = datetime.strptime(draw_date, "%Y-%m-%d")
         thai_year = date_obj.year + 543
@@ -134,37 +268,33 @@ class LaoScraper(BaseScraper):
         logger.info(f"Fetching Lao lottery results from Sanook: {url}")
         
         async with httpx.AsyncClient(headers=self.headers, verify=False, timeout=15) as client:
-            try:
-                response = await client.get(url)
-                if response.status_code == 404:
-                    raise ValueError(f"Lao lottery result for date {draw_date} not found on Sanook (404)")
-                response.raise_for_status()
+            response = await client.get(url)
+            if response.status_code == 404:
+                raise ValueError(f"Lao lottery result for date {draw_date} not found on Sanook (404)")
+            response.raise_for_status()
+            
+            next_data = self._extract_next_data(response.text)
+            if not next_data:
+                raise ValueError("Could not extract NEXT_DATA from Sanook page")
                 
-                next_data = self._extract_next_data(response.text)
-                if not next_data:
-                    raise ValueError("Could not extract NEXT_DATA from Sanook page")
-                    
-                lotto_info = self._extract_lao_from_cache(next_data, target_date_slug=date_slug)
-                if not lotto_info:
-                    raise ValueError(f"Could not extract Lao lottery result from NEXT_DATA for {draw_date}")
-                    
-                return {
-                    "lottery_type": "lao",
-                    "draw_date": draw_date,
-                    "draw_number": None,
-                    "numbers": {
-                        "digits_4": lotto_info["digits_4"]
-                    },
-                    "source_url": url,
-                    "fetched_at": datetime.now(timezone.utc)
-                }
-            except Exception as e:
-                logger.error(f"Error fetching Lao results for {draw_date}: {e}")
-                raise
+            lotto_info = self._extract_lao_from_cache(next_data, target_date_slug=date_slug)
+            if not lotto_info:
+                raise ValueError(f"Could not extract Lao lottery result from NEXT_DATA for {draw_date}")
+                
+            return {
+                "lottery_type": "lao",
+                "draw_date": draw_date,
+                "draw_number": None,
+                "numbers": {
+                    "digits_4": lotto_info["digits_4"]
+                },
+                "source_url": url,
+                "fetched_at": datetime.now(timezone.utc)
+            }
 
-    async def fetch_latest(self) -> Dict[str, Any]:
+    async def _fetch_latest_sanook(self) -> Dict[str, Any]:
         """
-        ดึงข้อมูลผลหวยลาวงวดล่าสุด
+        ดึงข้อมูลผลหวยลาวงวดล่าสุดจาก Sanook (ฟังก์ชันเดิม)
         """
         url = "https://www.sanook.com/news/laolotto/"
         logger.info(f"Fetching latest Lao lottery results from Sanook: {url}")
@@ -191,6 +321,34 @@ class LaoScraper(BaseScraper):
                 "source_url": url,
                 "fetched_at": datetime.now(timezone.utc)
             }
+
+    async def fetch(self, draw_date: str) -> Dict[str, Any]:
+        """
+        ดึงข้อมูลตามวันที่ (ลองดึงจาก MThai ก่อน ถ้าไม่พบหรือเก่าเกินไปให้ดึงจาก Sanook)
+        """
+        try:
+            mthai_result = await self._fetch_date_mthai(draw_date)
+            if mthai_result:
+                logger.info(f"Successfully fetched Lao results for date {draw_date} from MThai")
+                return mthai_result
+        except Exception as e:
+            logger.warning(f"Failed to fetch Lao results for date {draw_date} from MThai: {e}. Falling back to Sanook.")
+            
+        return await self._fetch_sanook(draw_date)
+
+    async def fetch_latest(self) -> Dict[str, Any]:
+        """
+        ดึงข้อมูลผลหวยลาวงวดล่าสุด (ลองดึงจาก MThai ก่อน ถ้าไม่สำเร็จให้ตกกลับไปใช้ Sanook)
+        """
+        try:
+            mthai_result = await self._fetch_latest_mthai()
+            if mthai_result:
+                logger.info(f"Successfully fetched latest Lao results from MThai")
+                return mthai_result
+        except Exception as e:
+            logger.warning(f"Failed to fetch latest Lao results from MThai: {e}. Falling back to Sanook.")
+            
+        return await self._fetch_latest_sanook()
 
     async def fetch_history_list(self) -> List[str]:
         """
