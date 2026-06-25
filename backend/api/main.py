@@ -19,7 +19,7 @@ async def lifespan(app: FastAPI):
     await init_redis()
 
     # เริ่มงานตั้งเวลาดึงข้อมูลหวย (Scheduler) ภายในโปรเซสเดียวกัน
-    scheduler = AsyncIOScheduler()
+    scheduler = AsyncIOScheduler(timezone="Asia/Bangkok")
     
     # 1. หวยรัฐบาลไทย (GLO) รันในช่วงเวลาออกผล (รองรับการอัปเดตช้า)
     scheduler.add_job(

@@ -79,7 +79,7 @@ async def main():
         logger.info("TEST mode execution finished.")
         return
 
-    scheduler = AsyncIOScheduler()
+    scheduler = AsyncIOScheduler(timezone="Asia/Bangkok")
 
     # 1. หวยรัฐบาลไทย (GLO)
     # ออกทุกวันที่ 1 และ 16 ของเดือน ในช่วงเวลา 15:00 น. - 18:00 น. เพื่อรองรับการอัปเดตช้า
