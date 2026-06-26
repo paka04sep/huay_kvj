@@ -24,19 +24,19 @@ async def lifespan(app: FastAPI):
     # 1. หวยรัฐบาลไทย (GLO) รันในช่วงเวลาออกผล (รองรับการอัปเดตช้า)
     scheduler.add_job(
         run_glo_task,
-        trigger=CronTrigger(day="1,16", hour="15", minute="*/10"),
+        trigger=CronTrigger(day="1,16", hour="15", minute="*/10", timezone="Asia/Bangkok"),
         id="glo_scheduled_job_15",
         replace_existing=True
     )
     scheduler.add_job(
         run_glo_task,
-        trigger=CronTrigger(day="1,16", hour="16", minute="*/20"),
+        trigger=CronTrigger(day="1,16", hour="16", minute="*/20", timezone="Asia/Bangkok"),
         id="glo_scheduled_job_16",
         replace_existing=True
     )
     scheduler.add_job(
         run_glo_task,
-        trigger=CronTrigger(day="1,16", hour="17", minute="0,30"),
+        trigger=CronTrigger(day="1,16", hour="17", minute="0,30", timezone="Asia/Bangkok"),
         id="glo_scheduled_job_17",
         replace_existing=True
     )
@@ -44,19 +44,19 @@ async def lifespan(app: FastAPI):
     # 2. หวยลาว (LAO) รันในช่วงเวลาออกผล (รองรับการอัปเดตช้า)
     scheduler.add_job(
         run_lao_task,
-        trigger=CronTrigger(day_of_week="mon-fri", hour="20", minute="30-59/5"),
+        trigger=CronTrigger(day_of_week="mon-fri", hour="20", minute="30-59/5", timezone="Asia/Bangkok"),
         id="lao_scheduled_job_20",
         replace_existing=True
     )
     scheduler.add_job(
         run_lao_task,
-        trigger=CronTrigger(day_of_week="mon-fri", hour="21", minute="*/15"),
+        trigger=CronTrigger(day_of_week="mon-fri", hour="21", minute="*/15", timezone="Asia/Bangkok"),
         id="lao_scheduled_job_21",
         replace_existing=True
     )
     scheduler.add_job(
         run_lao_task,
-        trigger=CronTrigger(day_of_week="mon-fri", hour="22,23", minute="*/30"),
+        trigger=CronTrigger(day_of_week="mon-fri", hour="22,23", minute="*/30", timezone="Asia/Bangkok"),
         id="lao_scheduled_job_22_23",
         replace_existing=True
     )
