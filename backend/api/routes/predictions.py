@@ -73,7 +73,34 @@ async def get_predictions(
     # 3. คำนวณวันงวดถัดไป
     next_draw_date = calculate_next_draw_date(type, latest_date_row)
  
-    # 4. เรียกใช้งาน EnsemblePredictor
+    # 4. พยายามดึงผลทำนายที่คำนวณไว้แล้วใน DB ก่อน เพื่อความเร็วระดับมิลลิวินาทีและป้องกัน Cold Start
+    try:
+        pred_row = await db.fetchrow("""
+            SELECT predictions_json 
+            FROM lottery_predictions 
+            WHERE lottery_type_id = $1 AND draw_date = $2
+        """, type_row["id"], next_draw_date)
+        
+        if pred_row:
+            predictions_data = json.loads(pred_row["predictions_json"])
+            response_data = {
+                "lottery_type": type,
+                "latest_draw_date": latest_date_row.isoformat(),
+                "next_draw_date": next_draw_date.isoformat(),
+                "predictions": predictions_data
+            }
+            
+            # บันทึกลง Redis Cache (มีอายุ 12 ชั่วโมง)
+            try:
+                await redis.set(cache_key, json.dumps(response_data), ex=43200)
+            except Exception:
+                pass
+                
+            return response_data
+    except Exception as db_err:
+        pass
+
+    # 5. เรียกใช้งาน EnsemblePredictor (Fallback เมื่อไม่พบผลทำนายล่วงหน้าใน DB)
     predictor = EnsemblePredictor(weight_lstm=0.6, weight_freq=0.4)
     
     try:
