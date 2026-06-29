@@ -56,6 +56,230 @@ interface PredictionsHistoryResponse {
   results: PredictionRecord[];
 }
 
+interface PredictionHistoryCardProps {
+  row: PredictionRecord;
+  type: "glo" | "lao";
+  formatDate: (dateStr: string) => string;
+  checkHit: (
+    category: "three_up" | "three_todd" | "two_up" | "two_down" | "run_up" | "run_down",
+    predictedNumber: string,
+    actual: PredictionRecord["actual_result"],
+    lotteryType: "glo" | "lao"
+  ) => boolean;
+}
+
+function PredictionHistoryCard({ row, type, formatDate, checkHit }: PredictionHistoryCardProps) {
+  const isDrawn = !!row.actual_result;
+  const primary = row.actual_result?.primary || "";
+  const secondary = row.actual_result?.secondary || {};
+
+  const shouldBeExpandedByDefault = (row: PredictionRecord) => {
+    if (!row.actual_result) return true; // งวดรอยืนยันผลรางวัล
+    
+    try {
+      const [year, month, day] = row.draw_date.split("-").map(Number);
+      const drawDate = new Date(year, month - 1, day);
+      
+      const today = new Date();
+      const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      
+      const diffTime = todayDate.getTime() - drawDate.getTime();
+      const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays <= 1) {
+        return true; // งวดของเมื่อวานที่ออกแล้ว (or today)
+      }
+    } catch (e) {
+      // Ignore
+    }
+    return false;
+  };
+
+  const [isExpanded, setIsExpanded] = useState(() => shouldBeExpandedByDefault(row));
+
+  // Extract actual values for displaying in header
+  let displayPrimary = "";
+  let displaySecond = "";
+  if (isDrawn) {
+    if (type === "glo") {
+      displayPrimary = primary;
+      displaySecond = secondary.last_2 || "";
+    } else {
+      displayPrimary = primary;
+      displaySecond = secondary.digits_2 || "";
+    }
+  }
+
+  // Count hits
+  let totalHits = 0;
+  const categories = [
+    { key: "three_up", label: "3 ตัวบน (ตรง)" },
+    { key: "three_todd", label: "3 ตัวโต๊ด" },
+    { key: "two_up", label: "2 ตัวบน" },
+    { key: "two_down", label: "2 ตัวล่าง" },
+    { key: "run_up", label: "วิ่งบน" },
+    { key: "run_down", label: "วิ่งล่าง" },
+  ] as const;
+
+  if (isDrawn) {
+    categories.forEach((cat) => {
+      const preds = row.predictions[cat.key] || [];
+      preds.forEach((pred) => {
+        if (checkHit(cat.key, pred.number, row.actual_result, type)) {
+          totalHits++;
+        }
+      });
+    });
+  }
+
+  return (
+    <div className={`bg-white border border-zinc-200 rounded-2xl p-5 shadow-sm hover:border-zinc-300 transition-all duration-255 ${isExpanded ? "space-y-4" : ""}`}>
+      {/* Card Header */}
+      <div
+        onClick={() => setIsExpanded(!isExpanded)}
+        className={`flex items-center justify-between cursor-pointer select-none gap-2 hover:opacity-80 transition-opacity ${isExpanded ? "border-b border-zinc-100 pb-3" : ""}`}
+      >
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full gap-2">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-zinc-950"></span>
+            <h4 className="font-bold text-zinc-900 text-sm">
+              งวดประจำวันที่ {formatDate(row.draw_date)}
+            </h4>
+          </div>
+          <div className="flex items-center gap-2">
+            {isDrawn ? (
+              totalHits > 0 ? (
+                <span className="inline-flex items-center rounded-full bg-emerald-50 border border-emerald-250 px-2.5 py-0.5 text-xs font-bold text-emerald-800">
+                  ✨ AI เข้าเป้า {totalHits} จุด
+                </span>
+              ) : (
+                <span className="inline-flex items-center rounded-full bg-zinc-100 border border-zinc-200 px-2.5 py-0.5 text-xs font-semibold text-zinc-500">
+                  ไม่พบรางวัลที่ทำนายถูก
+                </span>
+              )
+            ) : (
+              <span className="inline-flex items-center rounded-full bg-amber-50 border border-amber-200 px-2.5 py-0.5 text-xs font-bold text-amber-700">
+                ⏳ รอยืนยันผลรางวัล
+              </span>
+            )}
+          </div>
+        </div>
+        <div className="text-zinc-400 pl-2">
+          <svg
+            className={`w-4 h-4 transform transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+          </svg>
+        </div>
+      </div>
+
+      {isExpanded && (
+        <>
+          {/* Winning Results info */}
+          {isDrawn && (
+            <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-3 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-wrap gap-x-6 gap-y-2">
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-zinc-400 block">
+                    {type === "glo" ? "รางวัลที่ 1" : "เลขท้าย 4 ตัว"}
+                  </span>
+                  <span className="text-base font-extrabold text-zinc-950 font-mono tracking-wider">
+                    {displayPrimary || "------"}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-zinc-400 block">
+                    เลขท้าย 2 ตัว
+                  </span>
+                  <span className="text-base font-extrabold text-zinc-950 font-mono">
+                    {displaySecond || "--"}
+                  </span>
+                </div>
+                {type !== "glo" && secondary.digits_3 && (
+                  <div>
+                    <span className="text-[10px] uppercase font-bold text-zinc-400 block">
+                      เลข 3 ตัว
+                    </span>
+                    <span className="text-base font-extrabold text-zinc-950 font-mono">
+                      {secondary.digits_3}
+                    </span>
+                  </div>
+                )}
+              </div>
+              {totalHits > 0 && (
+                <div className="text-right py-0.5 px-2 bg-emerald-50 border border-emerald-100 rounded-md">
+                  <span className="text-[8px] font-extrabold text-emerald-600 tracking-wider block">
+                    STATUS
+                  </span>
+                  <span className="text-xs font-bold text-emerald-800">
+                    HIT SUCCESS
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Predictions Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {categories.map((cat) => {
+              const preds = row.predictions[cat.key] || [];
+              return (
+                <div
+                  key={cat.key}
+                  className="border border-zinc-100 rounded-xl p-3.5 bg-zinc-50/20 space-y-2"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-zinc-800">
+                      {cat.label}
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {preds.map((pred) => {
+                      const isHit =
+                        isDrawn &&
+                        checkHit(cat.key, pred.number, row.actual_result, type);
+                      return (
+                        <div
+                          key={pred.number}
+                          className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-lg border min-w-[52px] font-mono transition-all ${
+                            isHit
+                              ? "bg-emerald-50 border-emerald-400 text-emerald-800 shadow-sm"
+                              : "bg-white border-zinc-200 text-zinc-700"
+                          }`}
+                        >
+                          <span className="text-sm font-extrabold">
+                            {pred.number}
+                          </span>
+                          <span
+                            className={`text-[8px] font-bold ${
+                              isHit ? "text-emerald-600" : "text-zinc-400"
+                            }`}
+                          >
+                            {(pred.probability * 100).toFixed(1)}%
+                          </span>
+                        </div>
+                      );
+                    })}
+                    {preds.length === 0 && (
+                      <span className="text-[10px] text-zinc-400 italic">
+                        ไม่มีผลทำนาย
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function HistoryPanel({ type }: HistoryPanelProps) {
   const [activeTab, setActiveTab] = useState<"results" | "predictions">("results");
   const [page, setPage] = useState<number>(1);
@@ -322,176 +546,15 @@ export default function HistoryPanel({ type }: HistoryPanelProps) {
           </div>
 
           <div className="space-y-4">
-            {predictionsData.results.map((row, idx) => {
-              const isDrawn = !!row.actual_result;
-              const primary = row.actual_result?.primary || "";
-              const secondary = row.actual_result?.secondary || {};
-
-              // Extract actual values for displaying in header
-              let displayPrimary = "";
-              let displaySecond = "";
-              if (isDrawn) {
-                if (isGlo) {
-                  displayPrimary = primary;
-                  displaySecond = secondary.last_2 || "";
-                } else {
-                  displayPrimary = primary;
-                  displaySecond = secondary.digits_2 || "";
-                }
-              }
-
-              // Count hits
-              let totalHits = 0;
-              const categories = [
-                { key: "three_up", label: "3 ตัวบน (ตรง)" },
-                { key: "three_todd", label: "3 ตัวโต๊ด" },
-                { key: "two_up", label: "2 ตัวบน" },
-                { key: "two_down", label: "2 ตัวล่าง" },
-                { key: "run_up", label: "วิ่งบน" },
-                { key: "run_down", label: "วิ่งล่าง" },
-              ] as const;
-
-              if (isDrawn) {
-                categories.forEach((cat) => {
-                  const preds = row.predictions[cat.key] || [];
-                  preds.forEach((pred) => {
-                    if (checkHit(cat.key, pred.number, row.actual_result, type)) {
-                      totalHits++;
-                    }
-                  });
-                });
-              }
-
-              return (
-                <div
-                  key={idx}
-                  className="bg-white border border-zinc-200 rounded-2xl p-5 shadow-sm space-y-4 hover:border-zinc-300 transition-all duration-255"
-                >
-                  {/* Card Header */}
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-zinc-100 pb-3 gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-zinc-950"></span>
-                      <h4 className="font-bold text-zinc-900 text-sm">
-                        งวดประจำวันที่ {formatDate(row.draw_date)}
-                      </h4>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {isDrawn ? (
-                        totalHits > 0 ? (
-                          <span className="inline-flex items-center rounded-full bg-emerald-50 border border-emerald-250 px-2.5 py-0.5 text-xs font-bold text-emerald-800">
-                            ✨ AI เข้าเป้า {totalHits} จุด
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center rounded-full bg-zinc-100 border border-zinc-200 px-2.5 py-0.5 text-xs font-semibold text-zinc-500">
-                            ไม่พบรางวัลที่ทำนายถูก
-                          </span>
-                        )
-                      ) : (
-                        <span className="inline-flex items-center rounded-full bg-amber-50 border border-amber-200 px-2.5 py-0.5 text-xs font-bold text-amber-700">
-                          ⏳ รอยืนยันผลรางวัล
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Winning Results info */}
-                  {isDrawn && (
-                    <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-3 flex flex-wrap items-center justify-between gap-3">
-                      <div className="flex flex-wrap gap-x-6 gap-y-2">
-                        <div>
-                          <span className="text-[10px] uppercase font-bold text-zinc-400 block">
-                            {isGlo ? "รางวัลที่ 1" : "เลขท้าย 4 ตัว"}
-                          </span>
-                          <span className="text-base font-extrabold text-zinc-950 font-mono tracking-wider">
-                            {displayPrimary || "------"}
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-[10px] uppercase font-bold text-zinc-400 block">
-                            เลขท้าย 2 ตัว
-                          </span>
-                          <span className="text-base font-extrabold text-zinc-950 font-mono">
-                            {displaySecond || "--"}
-                          </span>
-                        </div>
-                        {!isGlo && secondary.digits_3 && (
-                          <div>
-                            <span className="text-[10px] uppercase font-bold text-zinc-400 block">
-                              เลข 3 ตัว
-                            </span>
-                            <span className="text-base font-extrabold text-zinc-950 font-mono">
-                              {secondary.digits_3}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                      {totalHits > 0 && (
-                        <div className="text-right py-0.5 px-2 bg-emerald-50 border border-emerald-100 rounded-md">
-                          <span className="text-[8px] font-extrabold text-emerald-600 tracking-wider block">
-                            STATUS
-                          </span>
-                          <span className="text-xs font-bold text-emerald-800">
-                            HIT SUCCESS
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Predictions Grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {categories.map((cat) => {
-                      const preds = row.predictions[cat.key] || [];
-                      return (
-                        <div
-                          key={cat.key}
-                          className="border border-zinc-100 rounded-xl p-3.5 bg-zinc-50/20 space-y-2"
-                        >
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-zinc-800">
-                              {cat.label}
-                            </span>
-                          </div>
-                          <div className="flex flex-wrap gap-2">
-                            {preds.map((pred) => {
-                              const isHit =
-                                isDrawn &&
-                                checkHit(cat.key, pred.number, row.actual_result, type);
-                              return (
-                                <div
-                                  key={pred.number}
-                                  className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-lg border min-w-[52px] font-mono transition-all ${
-                                    isHit
-                                      ? "bg-emerald-50 border-emerald-400 text-emerald-800 shadow-sm"
-                                      : "bg-white border-zinc-200 text-zinc-700"
-                                  }`}
-                                >
-                                  <span className="text-sm font-extrabold">
-                                    {pred.number}
-                                  </span>
-                                  <span
-                                    className={`text-[8px] font-bold ${
-                                      isHit ? "text-emerald-600" : "text-zinc-400"
-                                    }`}
-                                  >
-                                    {(pred.probability * 100).toFixed(1)}%
-                                  </span>
-                                </div>
-                              );
-                            })}
-                            {preds.length === 0 && (
-                              <span className="text-[10px] text-zinc-400 italic">
-                                ไม่มีผลทำนาย
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            })}
+            {predictionsData.results.map((row, idx) => (
+              <PredictionHistoryCard
+                key={idx}
+                row={row}
+                type={type}
+                formatDate={formatDate}
+                checkHit={checkHit}
+              />
+            ))}
             {predictionsData.results.length === 0 && (
               <div className="w-full rounded-2xl border border-zinc-200 bg-white p-12 text-center text-zinc-500 text-sm">
                 ไม่พบประวัติการทำนายในฐานข้อมูล

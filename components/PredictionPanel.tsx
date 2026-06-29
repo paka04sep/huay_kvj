@@ -68,6 +68,19 @@ export default function PredictionPanel({ type }: PredictionPanelProps) {
     return (val * 100).toFixed(1) + "%";
   };
 
+  const formatDrawDate = (dateStr: string) => {
+    try {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString("th-TH", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    } catch (e) {
+      return dateStr;
+    }
+  };
+
   // Helper component to render list of predictions
   const renderPredictionList = (
     title: string,
@@ -148,9 +161,18 @@ export default function PredictionPanel({ type }: PredictionPanelProps) {
   return (
     <div className="w-full space-y-6">
       {/* Title Header */}
-      <div className="rounded-xl border border-zinc-200 bg-zinc-950 text-white px-4 py-3 shadow-sm flex items-center justify-between text-xs">
-        <span className="font-semibold">ระบบประเมินความน่าจะเป็น (Ensemble AI)</span>
-        <span className="text-zinc-400 font-mono text-[9px]">LSTM 60% + Freq 40%</span>
+      <div className="rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 shadow-xs flex items-center justify-between text-xs">
+        <div className="space-y-0.5">
+          <h2 className="text-xs font-extrabold text-zinc-950">
+            ทำนายหวยประจำวันที่ {formatDrawDate(data.next_draw_date)}
+          </h2>
+          <p className="text-[9px] text-zinc-400 font-semibold ">
+            ระบบประเมินความน่าจะเป็น (Ensemble AI)
+          </p>
+        </div>
+        <span className="text-zinc-500 font-mono text-[9px] bg-zinc-200/60 border border-zinc-200 px-2 py-0.5 rounded">
+          LSTM 60% + Freq 40%
+        </span>
       </div>
 
       {/* --- Section 1: หมวดหมู่ 3 ตัว --- */}
