@@ -324,30 +324,14 @@ class LaoScraper(BaseScraper):
 
     async def fetch(self, draw_date: str) -> Dict[str, Any]:
         """
-        ดึงข้อมูลตามวันที่ (ลองดึงจาก MThai ก่อน ถ้าไม่พบหรือเก่าเกินไปให้ดึงจาก Sanook)
+        ดึงข้อมูลตามวันที่ (ดึงจาก Sanook เท่านั้น)
         """
-        try:
-            mthai_result = await self._fetch_date_mthai(draw_date)
-            if mthai_result:
-                logger.info(f"Successfully fetched Lao results for date {draw_date} from MThai")
-                return mthai_result
-        except Exception as e:
-            logger.warning(f"Failed to fetch Lao results for date {draw_date} from MThai: {e}. Falling back to Sanook.")
-            
         return await self._fetch_sanook(draw_date)
 
     async def fetch_latest(self) -> Dict[str, Any]:
         """
-        ดึงข้อมูลผลหวยลาวงวดล่าสุด (ลองดึงจาก MThai ก่อน ถ้าไม่สำเร็จให้ตกกลับไปใช้ Sanook)
+        ดึงข้อมูลผลหวยลาวงวดล่าสุด (ดึงจาก Sanook เท่านั้น)
         """
-        try:
-            mthai_result = await self._fetch_latest_mthai()
-            if mthai_result:
-                logger.info(f"Successfully fetched latest Lao results from MThai")
-                return mthai_result
-        except Exception as e:
-            logger.warning(f"Failed to fetch latest Lao results from MThai: {e}. Falling back to Sanook.")
-            
         return await self._fetch_latest_sanook()
 
     async def fetch_history_list(self) -> List[str]:
